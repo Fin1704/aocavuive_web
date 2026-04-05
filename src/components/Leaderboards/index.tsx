@@ -1,28 +1,18 @@
 'use client'
 
-import { collection, getDocs, orderBy, query } from 'firebase/firestore'
 import { motion } from 'motion/react'
 import { useEffect, useState } from 'react'
 
-import { db } from '@/config/firebase'
 import { animation } from '@/constants/animation'
-import { IUser } from '@/interfaces/user'
+import { getLeaderboard, LeaderboardUser } from '@/services/vipService'
 
-import Pagination from './Pagination'
 import Rank from './Rank'
 
 const Leaderboards = () => {
-	const [top, setTop] = useState<IUser[]>([])
-	const [currentPage, setCurrentPage] = useState(1)
-	const itemsPerPage = 5
+	const [top, setTop] = useState<LeaderboardUser[]>([])
 
 	useEffect(() => {
-		;(async () => {
-			const q = query(collection(db, 'top'), orderBy('point', 'desc'))
-			const snapshot = await getDocs(q)
-			const data = snapshot.docs.map((doc) => doc.data())
-			setTop(data as IUser[])
-		})()
+		getLeaderboard().then(setTop).catch(console.error)
 	}, [])
 
 	return (
@@ -45,31 +35,20 @@ const Leaderboards = () => {
 						Player
 					</div>
 
-					<div className='srhink-0 uppercase font-semibold text-sm text-gray-300 w-10'>
-						Points
+					<div className='shrink-0 uppercase font-semibold text-sm text-gray-300 w-14'>
+						VIP
 					</div>
 				</div>
 
-				{top
-					.slice(
-						(currentPage - 1) * itemsPerPage,
-						currentPage * itemsPerPage,
-					)
-					.map((rank, i) => (
-						<Rank
-							key={rank.id}
-							index={i + 1}
-							{...rank}
-						/>
-					))}
-
-				<div className='flex justify-center mt-4'>
-					<Pagination
-						length={top.length}
-						itemsPerPage={itemsPerPage}
-						setCurrentPage={setCurrentPage}
+				{top.map((user, i) => (
+					<Rank
+						key={user.user_id}
+						index={i + 1}
+						photoURL={user.avatar_url}
+						displayName={user.email.split('@')[0]}
+						vip_level={user.vip_level}
 					/>
-				</div>
+				))}
 			</motion.div>
 		</div>
 	)

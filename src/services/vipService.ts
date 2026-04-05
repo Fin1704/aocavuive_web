@@ -29,6 +29,22 @@ function getToken(): string | null {
 	return typeof window !== 'undefined' ? localStorage.getItem('access_token') : null
 }
 
+export interface LeaderboardUser {
+	user_id: string
+	email: string
+	avatar_url: string | null
+	experience: number
+	vip_level: number | null
+}
+
+// Get top 5 leaderboard by VIP/experience (public)
+export async function getLeaderboard(): Promise<LeaderboardUser[]> {
+	const res = await fetch(getApiUrl('/leaderboard'), {
+		headers: { 'Content-Type': 'application/json' },
+	})
+	return handleResponse<LeaderboardUser[]>(res)
+}
+
 // Get all VIP tiers (public)
 export async function getVipTiers(): Promise<VipTier[]> {
 	const res = await fetch(getApiUrl('/vip/tiers'), {

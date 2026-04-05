@@ -90,7 +90,7 @@ const Banner = () => {
 						style={{
 							backgroundImage: style.backgroundImage,
 						}}>
-						Chơi ngay
+						Xem ngay
 						</Button>
 
 					{/* <Button>Learn more</Button> */}

@@ -4,13 +4,15 @@ import { FC, memo } from 'react'
 import { GiTrophy } from 'react-icons/gi'
 
 interface RankProps {
-	photoURL: string
+	photoURL: string | null
 	displayName: string
-	point: number
+	vip_level: number | null
 	index: number
 }
 
-const Rank: FC<RankProps> = ({ photoURL, displayName, point, index }) => {
+const DEFAULT_AVATAR = 'https://ui-avatars.com/api/?background=random&size=48'
+
+const Rank: FC<RankProps> = ({ photoURL, displayName, vip_level, index }) => {
 	return (
 		<div
 			className={clsx('relative flex gap-4 p-2 rounded-sm', {
@@ -47,18 +49,23 @@ const Rank: FC<RankProps> = ({ photoURL, displayName, point, index }) => {
 
 			<div className='flex-1 flex items-center gap-3'>
 				<Image
-					src={photoURL}
+					src={photoURL || `${DEFAULT_AVATAR}&name=${encodeURIComponent(displayName)}`}
 					alt={displayName}
 					width={48}
 					height={48}
 					className='rounded-full object-cover w-12 h-12'
+					unoptimized
 				/>
 
 				<div>{displayName}</div>
 			</div>
 
-			<div className='shrink-0 w-10 h-10 text-center flex items-center justify-center text-gray-300'>
-				{point}
+			<div className='shrink-0 w-14 h-10 text-center flex items-center justify-center'>
+				{vip_level !== null ? (
+					<span className='text-yellow-400 font-semibold text-sm'>VIP {vip_level}</span>
+				) : (
+					<span className='text-gray-500 text-sm'>—</span>
+				)}
 			</div>
 		</div>
 	)
