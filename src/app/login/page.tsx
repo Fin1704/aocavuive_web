@@ -98,6 +98,7 @@ export default function LoginPage() {
 			<div className='flex flex-1 flex-col items-center justify-center bg-[#13161b] relative px-8 py-10'>
 				{/* Logo */}
 				<div className='absolute top-6 right-8'>
+					<Link href='/'>
 					<Image
 						src='/logo.png'
 						alt='Ao Cá Vui Vẻ'
@@ -105,6 +106,7 @@ export default function LoginPage() {
 						height={56}
 						className='object-contain'
 					/>
+					</Link>
 				</div>
 
 				<div className='w-full max-w-sm space-y-6'>

@@ -80,13 +80,15 @@ export default function RegisterPage() {
 					background:
 						'linear-gradient(160deg, #00b4d8 0%, #0077b6 30%, #023e8a 70%, #03045e 100%)',
 				}}>
-				<Image
-					src='/logo.png'
-					alt='Ao Cá Vui Vẻ'
-					width={56}
-					height={56}
-					className='object-contain relative z-10'
-				/>
+				<Link href='/'>
+					<Image
+						src='/logo.png'
+						alt='Ao Cá Vui Vẻ'
+						width={56}
+						height={56}
+						className='object-contain relative z-10'
+					/>
+				</Link>
 				<div
 					className='absolute inset-0'
 					style={{

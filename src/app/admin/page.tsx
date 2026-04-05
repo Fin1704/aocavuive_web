@@ -345,7 +345,7 @@ export default function AdminPage() {
 												: '—'}
 										</td>
 										<td className='py-2 text-gray-400'>
-											{moment(s.createdAt as number).fromNow()}
+											{moment(s.createdAt as unknown as number).fromNow()}
 										</td>
 									</tr>
 								))}

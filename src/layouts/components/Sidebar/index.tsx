@@ -66,7 +66,7 @@ const Sidebar = () => {
 					className='w-full justify-start gap-3 bg-transparent hover:bg-white/5 text-gray-500 hover:text-white px-3'
 					onClick={() =>
 						window.open(
-							'https://www.facebook.com/BachTuocMuoiTieu.MyFish/',
+							'https://www.facebook.com/aocavuive.games',
 							'_blank',
 						)
 					}>
