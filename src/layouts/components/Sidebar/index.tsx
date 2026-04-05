@@ -3,6 +3,7 @@
 import {
 	FaFacebook,
 	FaGear,
+	FaNewspaper,
 	FaShield,
 	FaStar,
 } from 'react-icons/fa6'
@@ -34,18 +35,40 @@ const authPages = [
 	},
 ]
 
+const adminSubPages = [
+	{
+		href: '/admin',
+		label: 'Tổng quan',
+		icon: <FaShield size={14} />,
+	},
+	{
+		href: '/admin/blogs',
+		label: 'Blogs',
+		icon: <FaNewspaper size={14} />,
+	},
+]
+
 const Sidebar = () => {
 	const { isAdmin, isLoggedIn, mounted } = useAuth()
 
 	return (
 		<div className='shrink-0 hidden md:flex flex-col justify-between py-4 px-2 w-52 h-full bg-dark border-r border-white/5'>
 			<div className='flex flex-col gap-1'>
-				{isAdmin && (
-					<ActiveLink
-						href='/admin'
-						label='Admin'
-						icon={<FaShield size={16} />}
-					/>
+				{mounted && isAdmin && (
+					<div className='flex flex-col gap-0.5'>
+						<p className='text-[10px] text-gray-500 uppercase tracking-widest px-3 pt-1 pb-0.5'>
+							Admin
+						</p>
+						{adminSubPages.map((page) => (
+							<ActiveLink
+								key={page.href}
+								href={page.href}
+								label={page.label}
+								icon={page.icon}
+								indent
+							/>
+						))}
+					</div>
 				)}
 				{mounted && isLoggedIn && authPages.map((page) => (
 					<ActiveLink

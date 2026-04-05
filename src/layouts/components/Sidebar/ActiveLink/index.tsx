@@ -11,9 +11,10 @@ interface ActiveLinkProps {
 	icon: ReactNode
 	label: string
 	locked?: boolean
+	indent?: boolean
 }
 
-const ActiveLink: FC<ActiveLinkProps> = ({ href, icon, label, locked }) => {
+const ActiveLink: FC<ActiveLinkProps> = ({ href, icon, label, locked, indent }) => {
 	const pathname = usePathname()
 	const isActive = pathname === href
 
@@ -21,7 +22,8 @@ const ActiveLink: FC<ActiveLinkProps> = ({ href, icon, label, locked }) => {
 		<Link
 			href={href}
 			className={clsx(
-				'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors w-full',
+				'flex items-center gap-3 py-2 rounded-lg text-sm transition-colors w-full',
+				indent ? 'px-4' : 'px-3',
 				isActive
 					? 'bg-orange-500/20 text-orange-400'
 					: 'text-gray-400 hover:text-white hover:bg-white/5',
