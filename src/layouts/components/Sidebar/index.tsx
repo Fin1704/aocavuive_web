@@ -1,78 +1,59 @@
 'use client'
 
-import { BsBank2 } from 'react-icons/bs'
-import { FaBlog } from 'react-icons/fa'
 import {
-	FaBagShopping,
-	FaBookBookmark,
-	FaDiscord,
 	FaFacebook,
-	FaGamepad,
-	FaXTwitter,
-	FaYoutube,
+	FaGear,
+	FaShield,
+	FaStar,
 } from 'react-icons/fa6'
-import { GiSwapBag } from 'react-icons/gi'
-import { GoHomeFill, GoLog } from 'react-icons/go'
-import { IoStorefront } from 'react-icons/io5'
-import { WiTrain } from 'react-icons/wi'
+import { MdDashboard } from 'react-icons/md'
 
 import { Button } from '@/components/ui/button'
+import { useAuth } from '@/hooks/useAuth'
 
 import ActiveLink from './ActiveLink'
 
-const pages = [
+const publicPages = [
 	{
 		href: '/',
-		label: 'Trang chủ',
-		icon: <GoHomeFill />,
+		label: 'Trung tâm sự kiện',
+		icon: <FaStar size={16} />,
 	},
-// 	{
-// 		href: '/marketplace',
-// 		label: 'Marketplace',
-// 		icon: <FaBagShopping />,
-// 	},
-// 	{
-// 		href: '/bounty-board',
-// 		label: 'Bounty Board',
-// 		icon: <GoLog />,
-// 	},
-// 	{
-// 		href: '/games',
-// 		label: 'Games',
-// 		icon: <FaGamepad />,
-// 	},
-// 	{
-// 		href: '/governance',
-// 		label: 'Governance',
-// 		icon: <BsBank2 />,
-// 	},
-// 	{
-// 		href: '/lunalog',
-// 		label: 'Lunalog',
-// 		icon: <FaBookBookmark />,
-// 	},
-// 	{
-// 		href: '/staking',
-// 		label: 'Staking',
-// 		icon: <GiSwapBag size={20} />,
-// 	},
-// 	{
-// 		href: '/express',
-// 		label: 'Lunacian Express',
-// 		icon: <WiTrain size={20} />,
-// 	},
-// 	{
-// 		href: '/game-store',
-// 		label: 'Axie game store',
-// 		icon: <IoStorefront />,
-// 	},
+]
+
+const authPages = [
+	{
+		href: '/dashboard',
+		label: 'Dashboard',
+		icon: <MdDashboard size={18} />,
+	},
+	{
+		href: '/cai-dat',
+		label: 'Cài đặt tài khoản',
+		icon: <FaGear size={16} />,
+	},
 ]
 
 const Sidebar = () => {
+	const { isAdmin, isLoggedIn, mounted } = useAuth()
+
 	return (
-		<div className='shrink-0 hidden md:flex flex-col justify-around items-center w-16 h-full bg-dark'>
-			<div className='flex flex-col gap-4 items-center'>
-				{pages.slice(0, 5).map((page) => (
+		<div className='shrink-0 hidden md:flex flex-col justify-between py-4 px-2 w-52 h-full bg-dark border-r border-white/5'>
+			<div className='flex flex-col gap-1'>
+				{isAdmin && (
+					<ActiveLink
+						href='/admin'
+						label='Admin'
+						icon={<FaShield size={16} />}
+					/>
+				)}
+				{mounted && isLoggedIn && authPages.map((page) => (
+					<ActiveLink
+						key={page.href}
+						{...page}
+					/>
+				))}
+				{publicPages.map((page) => (
 					<ActiveLink
 						key={page.href}
 						{...page}
@@ -80,23 +61,17 @@ const Sidebar = () => {
 				))}
 			</div>
 
-			<div className='flex flex-col gap-4 items-center'>
-				{/* <Button className='hover:text-orange-500 bg-transparent'>
-					<FaBlog />
-				</Button>
-
-				<Button className='hover:text-orange-500 bg-transparent'>
-					<FaXTwitter />
-				</Button>
-
-				<Button className='hover:text-orange-500 bg-transparent'>
-					<FaDiscord />
-				</Button> */}
-
-				<Button className='hover:text-orange-500 bg-transparent'
-				onClick={
-					() => window.open('https://www.facebook.com/BachTuocMuoiTieu.MyFish/', '_blank')}>
-					<FaFacebook />
+			<div className='px-1'>
+				<Button
+					className='w-full justify-start gap-3 bg-transparent hover:bg-white/5 text-gray-500 hover:text-white px-3'
+					onClick={() =>
+						window.open(
+							'https://www.facebook.com/BachTuocMuoiTieu.MyFish/',
+							'_blank',
+						)
+					}>
+					<FaFacebook size={15} />
+					<span className='text-sm'>Facebook</span>
 				</Button>
 			</div>
 		</div>

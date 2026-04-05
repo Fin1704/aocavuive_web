@@ -24,7 +24,7 @@ const Discover = () => {
 		<div className='space-y-4'>
 			<div className='text-2xl font-semibold'>Khám phá</div>
 
-			<div className='grid gap-4 md:grid-cols-3'>
+			<div className='grid gap-4 md:grid-cols-2'>
 				{blogs.map((blog) => (
 					<Blog
 						key={blog.id}

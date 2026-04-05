@@ -1,29 +1,35 @@
-import Link from 'next/link'
-import { FC, memo, ReactNode } from 'react'
+'use client'
 
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
+import clsx from 'clsx'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { FC, memo, ReactNode } from 'react'
+import { FaLock } from 'react-icons/fa6'
 
 interface ActiveLinkProps {
 	href: string
 	icon: ReactNode
 	label: string
+	locked?: boolean
 }
 
-const ActiveLink: FC<ActiveLinkProps> = ({ href, icon, label }) => {
+const ActiveLink: FC<ActiveLinkProps> = ({ href, icon, label, locked }) => {
+	const pathname = usePathname()
+	const isActive = pathname === href
+
 	return (
-		<TooltipProvider>
-			<Tooltip>
-				<TooltipTrigger>
-					<Link
-						href={href}
-						className='flex items-center gap-3 text-gray-300 p-2 rounded-md hover:text-orange-500 hover:bg-gray-700 transition'>
-						{icon}
-						{/* {label} */}
-					</Link>
-				</TooltipTrigger>
-				<TooltipContent>{label}</TooltipContent>
-			</Tooltip>
-		</TooltipProvider>
+		<Link
+			href={href}
+			className={clsx(
+				'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors w-full',
+				isActive
+					? 'bg-orange-500/20 text-orange-400'
+					: 'text-gray-400 hover:text-white hover:bg-white/5',
+			)}>
+			<span className='shrink-0 text-base'>{icon}</span>
+			<span className='flex-1 font-medium'>{label}</span>
+			{locked && <FaLock size={11} className='shrink-0 text-gray-600' />}
+		</Link>
 	)
 }
 

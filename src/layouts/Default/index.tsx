@@ -1,10 +1,20 @@
+'use client'
+
+import { usePathname } from 'next/navigation'
 import { ReactNode } from 'react'
 
 import Header from '../components/Header'
-import Notification from '../components/Notification'
 import Sidebar from '../components/Sidebar'
 
+const AUTH_ROUTES = ['/login', '/register']
+
 const DefaultLayout = ({ children }: { children: ReactNode }) => {
+	const pathname = usePathname()
+
+	if (AUTH_ROUTES.includes(pathname)) {
+		return <>{children}</>
+	}
+
 	return (
 		<>
 			<Header />
@@ -13,9 +23,7 @@ const DefaultLayout = ({ children }: { children: ReactNode }) => {
 				<Sidebar />
 
 				<div className='relative overflow-x-hidden flex-1 min-h-screen overflow-y-scroll'>
-					<Notification />
-
-					<main className='px-4 max-w-6xl md:pt-16 pt-24 pb-20 mx-auto text-white space-y-16'>
+					<main className='px-6 pt-6 pb-20 text-white'>
 						{children}
 					</main>
 				</div>

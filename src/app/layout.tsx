@@ -26,7 +26,7 @@ export default async function RootLayout({
 }) {
 	return (
 		<html lang='vi'>
-			<body className={`${roboto.className} antialiased`}>
+			<body className={`${roboto.className} antialiased`} suppressHydrationWarning>
 				<DefaultLayout>{children}</DefaultLayout>
 				<Toaster />
 				<Analytics />
