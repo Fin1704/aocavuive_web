@@ -51,9 +51,9 @@ const Rank: FC<RankProps> = ({ photoURL, displayName, vip_level, index }) => {
 				<Image
 					src={photoURL || `${DEFAULT_AVATAR}&name=${encodeURIComponent(displayName)}`}
 					alt={displayName}
-					width={48}
-					height={48}
-					className='rounded-full object-cover w-12 h-12'
+					width={32}
+					height={32}
+					className='rounded-full object-cover w-8 h-8'
 					unoptimized
 				/>
 
