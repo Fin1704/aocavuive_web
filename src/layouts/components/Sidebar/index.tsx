@@ -29,8 +29,8 @@ const authPages = [
 		icon: <MdDashboard size={18} />,
 	},
 	{
-		href: '/cai-dat',
-		label: 'Cài đặt tài khoản',
+		href: '/settings',
+		label: 'Cài đặt',
 		icon: <FaGear size={16} />,
 	},
 ]

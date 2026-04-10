@@ -14,6 +14,8 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import moment from 'moment'
 
+import Link from 'next/link'
+
 import { db } from '@/config/firebase'
 import { style } from '@/constants/style'
 import { useAuth } from '@/hooks/useAuth'
@@ -143,7 +145,15 @@ export default function AdminBlogsPage() {
 	return (
 		<div className='min-h-screen p-6 space-y-6' style={{ backgroundColor: '#13161b' }}>
 			<div className='flex items-center justify-between'>
-				<h1 className='text-2xl font-bold text-white'>Quản lý Blogs</h1>
+				<div className='flex items-center gap-3'>
+					<Link
+						href='/admin'
+						className='text-gray-400 hover:text-white transition-colors text-sm'>
+						← Quản trị
+					</Link>
+					<span className='text-gray-600'>/</span>
+					<h1 className='text-2xl font-bold text-white'>Quản lý Blogs</h1>
+				</div>
 				<button
 					onClick={openCreate}
 					className='h-10 px-5 rounded-lg text-white font-semibold text-sm transition-opacity hover:opacity-90'
