@@ -13,6 +13,8 @@ export interface UserAccount {
 export interface AuthUser {
 	id: string
 	email: string
+	username: string | null
+	username_changed_at: string | null
 	avatar_url: string | null
 	is_verified: boolean
 	created_at: string
@@ -82,6 +84,32 @@ export async function getMe(token: string): Promise<AuthUser> {
 		},
 	})
 	if (res.status === 401) throw new Error('UNAUTHORIZED')
+	return handleResponse<AuthUser>(res)
+}
+
+export async function setOwnUsername(username: string): Promise<AuthUser> {
+	const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null
+	const res = await fetch(getApiUrl('/users/me/username'), {
+		method: 'PUT',
+		headers: {
+			'Content-Type': 'application/json',
+			...(token ? { Authorization: `Bearer ${token}` } : {}),
+		},
+		body: JSON.stringify({ username }),
+	})
+	return handleResponse<AuthUser>(res)
+}
+
+export async function adminSetUsername(userId: string, username: string): Promise<AuthUser> {
+	const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null
+	const res = await fetch(getApiUrl(`/users/${userId}/username`), {
+		method: 'PUT',
+		headers: {
+			'Content-Type': 'application/json',
+			...(token ? { Authorization: `Bearer ${token}` } : {}),
+		},
+		body: JSON.stringify({ username }),
+	})
 	return handleResponse<AuthUser>(res)
 }
 

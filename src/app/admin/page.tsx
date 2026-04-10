@@ -33,6 +33,12 @@ const MENU_ITEMS = [
 		icon: '📬',
 	},
 	{
+		href: '/admin/users',
+		label: 'Quản lý Users',
+		description: 'Đổi username và thông tin tài khoản người dùng',
+		icon: '👤',
+	},
+	{
 		href: '/admin/blogs',
 		label: 'Quản lý Blogs',
 		description: 'Thêm, sửa, xóa các bài viết trên trang web',
