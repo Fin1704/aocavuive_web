@@ -45,7 +45,7 @@ const Leaderboards = () => {
 						key={user.user_id}
 						index={i + 1}
 						photoURL={user.avatar_url}
-						displayName={user.email.split('@')[0]}
+						displayName={user.username ?? user.email.split('@')[0]}
 						vip_level={user.vip_level}
 					/>
 				))}

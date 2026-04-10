@@ -29,7 +29,7 @@ export default function SettingsPage() {
 
 	if (!mounted || !isLoggedIn) return null
 
-	const avatarLetter = user!.email.charAt(0).toUpperCase()
+	const avatarLetter = (user!.username ?? user!.email).charAt(0).toUpperCase()
 	const joinDate = user!.created_at
 		? new Date(user!.created_at).toLocaleDateString('vi-VN', {
 				day: '2-digit',

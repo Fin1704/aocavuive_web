@@ -12,7 +12,7 @@ import { useAuth } from '@/hooks/useAuth'
 const Header = () => {
 	const { user, isLoggedIn, logout, mounted } = useAuth()
 
-	const displayName = user?.email?.split('@')[0] ?? 'User'
+	const displayName = user?.username ?? user?.email?.split('@')[0] ?? 'User'
 
 	return (
 		<div className='h-16 sticky top-0 left-0 w-full z-20 flex items-center justify-between bg-dark px-4'>

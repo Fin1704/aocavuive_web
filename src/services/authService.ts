@@ -124,11 +124,11 @@ export async function refreshTokens(refreshToken: string): Promise<LoginResponse
 	return json.data as LoginResponse
 }
 
-export async function register(email: string, password: string): Promise<RegisterResponse> {
+export async function register(email: string, password: string, username?: string): Promise<RegisterResponse> {
 	const res = await fetch(getApiUrl('/auth/register'), {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ email, password }),
+		body: JSON.stringify({ email, password, ...(username ? { username } : {}) }),
 	})
 	return handleResponse<RegisterResponse>(res)
 }

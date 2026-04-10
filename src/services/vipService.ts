@@ -32,6 +32,7 @@ function getToken(): string | null {
 export interface LeaderboardUser {
 	user_id: string
 	email: string
+	username: string | null
 	avatar_url: string | null
 	experience: number
 	vip_level: number | null

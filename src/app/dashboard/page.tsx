@@ -59,7 +59,8 @@ export default function DashboardPage() {
 
 	// Find rank of current user
 	const myRank = leaderboard.findIndex((u) => u.user_id === user!.id) + 1
-	const avatarLetter = user!.email.charAt(0).toUpperCase()
+	const displayName = user!.username ?? user!.email.split('@')[0]
+	const avatarLetter = (user!.username ?? user!.email).charAt(0).toUpperCase()
 
 	return (
 		<div className='space-y-6'>
@@ -80,7 +81,7 @@ export default function DashboardPage() {
 				</div>
 				<div className='relative'>
 					<p className='text-white/70 text-sm'>Chào mừng trở lại,</p>
-					<p className='text-white font-bold text-xl truncate max-w-[220px]'>{user!.email}</p>
+					<p className='text-white font-bold text-xl truncate max-w-[220px]'>{displayName}</p>
 					{currentVip > 0 && (
 						<span className='inline-flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full bg-white/20 text-white text-xs font-semibold'>
 							<FaStar size={10} />
@@ -213,12 +214,12 @@ export default function DashboardPage() {
 											{u.avatar_url ? (
 												<img src={u.avatar_url} alt='' className='w-full h-full object-cover' />
 											) : (
-												u.email.charAt(0).toUpperCase()
+												(u.username ?? u.email).charAt(0).toUpperCase()
 											)}
 										</div>
 										<div className='flex-1 min-w-0'>
 											<p className={`text-sm truncate ${isMe ? 'font-semibold text-white' : 'text-gray-300'}`}>
-												{isMe ? 'Bạn' : u.email.split('@')[0]}
+												{isMe ? (user!.username ?? 'Bạn') : (u.username ?? u.email.split('@')[0])}
 											</p>
 										</div>
 										<div className='text-right shrink-0'>

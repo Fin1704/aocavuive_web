@@ -26,6 +26,12 @@ import { toast } from 'sonner'
 const registerSchema = z
 	.object({
 		email: z.string().email('Email không hợp lệ'),
+		username: z
+			.string()
+			.refine(
+				(v) => v === '' || (v.length >= 3 && v.length <= 50 && /^[a-zA-Z0-9_]+$/.test(v)),
+				{ message: 'Username 3–50 ký tự, chỉ chữ cái, số và dấu _' },
+			),
 		password: z
 			.string()
 			.min(8, 'Mật khẩu phải có ít nhất 8 ký tự')
@@ -52,6 +58,7 @@ export default function RegisterPage() {
 		resolver: zodResolver(registerSchema),
 		defaultValues: {
 			email: '',
+			username: '',
 			password: '',
 			confirmPassword: '',
 			agreeTerms: false,
@@ -61,9 +68,9 @@ export default function RegisterPage() {
 	const onSubmit = async (data: RegisterFormValues) => {
 		try {
 			setIsLoading(true)
-			await register(data.email, data.password)
+			await register(data.email, data.password, data.username || undefined)
 			toast.success('Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.')
-			router.push('/dang-nhap')
+			router.push('/login')
 		} catch (error) {
 			toast.error(error instanceof Error ? error.message : 'Đăng ký thất bại')
 		} finally {
@@ -144,6 +151,34 @@ export default function RegisterPage() {
 												className='bg-[#1c2030] border-[#2a3348] text-white placeholder:text-gray-600 h-12 rounded-lg focus-visible:ring-orange-400 focus-visible:border-orange-400'
 												{...field}
 											/>
+										</FormControl>
+										<FormMessage className='text-red-400 text-xs' />
+									</FormItem>
+								)}
+							/>
+
+							{/* Username (optional) */}
+							<FormField
+								control={form.control}
+								name='username'
+								render={({ field }) => (
+									<FormItem>
+										<div className='flex items-center justify-between mb-1'>
+											<span className='text-white text-sm font-medium'>Username</span>
+											<span className='text-xs text-gray-500'>Tùy chọn</span>
+										</div>
+										<FormControl>
+											<div className='relative'>
+												<span className='absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm select-none'>
+													@
+												</span>
+												<Input
+													type='text'
+													placeholder='ten_cua_ban'
+													className='bg-[#1c2030] border-[#2a3348] text-white placeholder:text-gray-600 h-12 rounded-lg pl-7 focus-visible:ring-orange-400 focus-visible:border-orange-400'
+													{...field}
+												/>
+											</div>
 										</FormControl>
 										<FormMessage className='text-red-400 text-xs' />
 									</FormItem>
