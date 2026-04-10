@@ -74,6 +74,28 @@ export async function getAccount(): Promise<UserAccount> {
 	return handleResponse<UserAccount>(res)
 }
 
+export async function getMe(token: string): Promise<AuthUser> {
+	const res = await fetch(getApiUrl('/users/me'), {
+		headers: {
+			'Content-Type': 'application/json',
+			Authorization: `Bearer ${token}`,
+		},
+	})
+	if (res.status === 401) throw new Error('UNAUTHORIZED')
+	return handleResponse<AuthUser>(res)
+}
+
+export async function refreshTokens(refreshToken: string): Promise<LoginResponse> {
+	const res = await fetch(getApiUrl('/auth/refresh'), {
+		method: 'POST',
+		headers: { 'Content-Type': 'application/json' },
+		body: JSON.stringify({ refresh_token: refreshToken }),
+	})
+	if (!res.ok) throw new Error('REFRESH_FAILED')
+	const json = await res.json()
+	return json.data as LoginResponse
+}
+
 export async function register(email: string, password: string): Promise<RegisterResponse> {
 	const res = await fetch(getApiUrl('/auth/register'), {
 		method: 'POST',
