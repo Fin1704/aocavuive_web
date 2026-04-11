@@ -149,7 +149,7 @@ export default function AdminPostsPage() {
 							type='button'
 							onClick={() => setShowNewPreview((prev) => !prev)}
 							className='h-10 px-5 rounded-lg text-white font-semibold text-sm bg-white/10 hover:bg-white/20 transition-colors'>
-							{showNewPreview ? 'áº¨n preview' : 'Preview'}
+							{showNewPreview ? '\u1ea8n xem tr\u01b0\u1edbc' : 'Xem tr\u01b0\u1edbc'}
 						</button>
 						<button
 							type='submit'
@@ -171,12 +171,12 @@ export default function AdminPostsPage() {
 					</div>
 					{showNewPreview && (
 						<div className='space-y-2'>
-							<p className='text-xs text-gray-400'>Preview HTML</p>
+							<p className='text-xs text-gray-400'>{'Xem trước HTML'}</p>
 							<div className='rounded-lg border border-white/10 bg-[#13161b] p-4 text-sm text-gray-200'>
 								{newContent.trim() ? (
 									<div dangerouslySetInnerHTML={{ __html: newContent }} />
 								) : (
-									<p className='text-gray-500'>ChÆ°a cÃ³ ná»™i dung Ä‘á»ƒ preview.</p>
+									<p className='text-gray-500'>{''}</p>
 								)}
 							</div>
 						</div>
@@ -230,7 +230,25 @@ export default function AdminPostsPage() {
 												className='w-full rounded-lg bg-[#13161b] border border-white/20 text-white px-3 py-2 text-sm focus:outline-none focus:border-white/40 resize-none'
 											/>
 										</div>
+										{showEditPreview && (
+											<div className='space-y-2'>
+												<p className='text-xs text-gray-400'>{'Xem tr\u01b0\u1edbc HTML'}</p>
+												<div className='rounded-lg border border-white/10 bg-[#13161b] p-4 text-sm text-gray-200'>
+													{editContent.trim() ? (
+														<div dangerouslySetInnerHTML={{ __html: editContent }} />
+													) : (
+														<p className='text-gray-500'>{'Ch\u01b0a c\u00f3 n\u1ed9i dung \u0111\u1ec3 xem tr\u01b0\u1edbc.'}</p>
+													)}
+												</div>
+											</div>
+										)}
 										<div className='flex gap-2'>
+											<button
+												type='button'
+												onClick={() => setShowEditPreview((prev) => !prev)}
+												className='h-9 px-4 rounded-lg text-white text-sm font-semibold bg-white/10 hover:bg-white/20 transition-colors'>
+												{showEditPreview ? '\u1ea8n xem tr\u01b0\u1edbc' : 'Xem tr\u01b0\u1edbc'}
+											</button>
 											<button
 												onClick={() => handleUpdate(post.id)}
 												className='h-9 px-4 rounded-lg text-white text-sm font-semibold transition-opacity hover:opacity-90'
@@ -238,7 +256,10 @@ export default function AdminPostsPage() {
 												Lưu
 											</button>
 											<button
-												onClick={() => setEditingId(null)}
+												onClick={() => {
+													setEditingId(null)
+													setShowEditPreview(false)
+												}}
 												className='h-9 px-4 rounded-lg text-white text-sm font-semibold bg-white/10 hover:bg-white/20 transition-colors'>
 												Hủy
 											</button>
@@ -261,6 +282,7 @@ export default function AdminPostsPage() {
 														setEditTitle(post.title)
 														setEditContent(post.content)
 														setEditLive(post.is_live)
+														setShowEditPreview(false)
 													}}
 													className='px-3 py-1 rounded-lg text-white text-xs font-semibold bg-white/10 hover:bg-white/20 transition-colors'>
 													Sửa
