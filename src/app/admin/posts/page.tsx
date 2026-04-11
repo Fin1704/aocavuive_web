@@ -25,11 +25,13 @@ export default function AdminPostsPage() {
 	const [newTitle, setNewTitle] = useState('')
 	const [newContent, setNewContent] = useState('')
 	const [newLive, setNewLive] = useState(false)
+	const [showNewPreview, setShowNewPreview] = useState(false)
 	const [creating, setCreating] = useState(false)
 	const [editingId, setEditingId] = useState<string | null>(null)
 	const [editTitle, setEditTitle] = useState('')
 	const [editContent, setEditContent] = useState('')
 	const [editLive, setEditLive] = useState(false)
+	const [showEditPreview, setShowEditPreview] = useState(false)
 
 	useEffect(() => {
 		if (!mounted) return
@@ -63,6 +65,7 @@ export default function AdminPostsPage() {
 			setNewTitle('')
 			setNewContent('')
 			setNewLive(false)
+			setShowNewPreview(false)
 			await fetchPosts()
 		} catch (err: unknown) {
 			toast.error(err instanceof Error ? err.message : 'Lỗi tạo bài đăng')
@@ -77,6 +80,7 @@ export default function AdminPostsPage() {
 			await adminUpdatePost(id, { title: editTitle, content: editContent, is_live: editLive })
 			toast.success('Đã cập nhật bài đăng!')
 			setEditingId(null)
+			setShowEditPreview(false)
 			await fetchPosts()
 		} catch (err: unknown) {
 			toast.error(err instanceof Error ? err.message : 'Lỗi cập nhật bài đăng')
@@ -142,6 +146,12 @@ export default function AdminPostsPage() {
 							</label>
 						</div>
 						<button
+							type='button'
+							onClick={() => setShowNewPreview((prev) => !prev)}
+							className='h-10 px-5 rounded-lg text-white font-semibold text-sm bg-white/10 hover:bg-white/20 transition-colors'>
+							{showNewPreview ? 'áº¨n preview' : 'Preview'}
+						</button>
+						<button
 							type='submit'
 							disabled={creating}
 							className='h-10 px-5 rounded-lg text-white font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-60'
@@ -159,6 +169,18 @@ export default function AdminPostsPage() {
 							className='w-full rounded-lg bg-[#13161b] border border-white/10 text-white px-3 py-2 text-sm placeholder:text-gray-600 focus:outline-none focus:border-white/30 resize-none'
 						/>
 					</div>
+					{showNewPreview && (
+						<div className='space-y-2'>
+							<p className='text-xs text-gray-400'>Preview HTML</p>
+							<div className='rounded-lg border border-white/10 bg-[#13161b] p-4 text-sm text-gray-200'>
+								{newContent.trim() ? (
+									<div dangerouslySetInnerHTML={{ __html: newContent }} />
+								) : (
+									<p className='text-gray-500'>ChÆ°a cÃ³ ná»™i dung Ä‘á»ƒ preview.</p>
+								)}
+							</div>
+						</div>
+					)}
 				</form>
 			</div>
 
