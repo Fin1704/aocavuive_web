@@ -33,7 +33,9 @@ type LoginFormValues = z.infer<typeof loginSchema>
 export default function LoginPage() {
 	const [showPassword, setShowPassword] = useState(false)
 	const [isLoading, setIsLoading] = useState(false)
+	const [showVerifyPopup, setShowVerifyPopup] = useState(false)
 	const router = useRouter()
+	const supportFacebookUrl = 'https://www.facebook.com'
 
 	const form = useForm<LoginFormValues>({
 		resolver: zodResolver(loginSchema),
@@ -50,66 +52,48 @@ export default function LoginPage() {
 			toast.success('Đăng nhập thành công!')
 			router.push('/')
 		} catch (error) {
-			toast.error(error instanceof Error ? error.message : 'Đăng nhập thất bại')
+			const isEmailNotVerified =
+				error &&
+				typeof error === 'object' &&
+				'message_key' in error &&
+				(error as { message_key?: string }).message_key === 'auth.email_not_verified'
+			if (isEmailNotVerified) {
+				setShowVerifyPopup(true)
+			} else {
+				toast.error(error instanceof Error ? error.message : 'Đăng nhập thất bại')
+			}
 		} finally {
 			setIsLoading(false)
 		}
 	}
 
 	return (
-		<div className='flex h-screen w-screen overflow-hidden'>
-			{/* Left artwork panel */}
-			<div
-				className='hidden md:flex flex-1 relative overflow-hidden items-end justify-center'
-				style={{
-					background:
-						'linear-gradient(160deg, #041830 0%, #093060 30%, #0a5080 60%, #0b6e9c 100%)',
-				}}>
-				<div
-					className='absolute inset-0'
-					style={{
-						background:
-							'radial-gradient(ellipse 60% 80% at 50% 20%, rgba(0,180,220,0.18) 0%, transparent 70%)',
-					}}
-				/>
-				<div
-					className='absolute inset-0'
-					style={{
-						background:
-							'radial-gradient(ellipse 40% 60% at 30% 60%, rgba(0,100,160,0.25) 0%, transparent 70%)',
-					}}
-				/>
-				{[
-					{ left: '15%', top: '70%', size: 8, opacity: 0.3 },
-					{ left: '25%', top: '55%', size: 5, opacity: 0.2 },
-					{ left: '70%', top: '65%', size: 12, opacity: 0.25 },
-					{ left: '80%', top: '80%', size: 6, opacity: 0.2 },
-					{ left: '50%', top: '40%', size: 4, opacity: 0.15 },
-				].map((b, i) => (
-					<div
-						key={i}
-						className='absolute rounded-full border border-white'
-						style={{ left: b.left, top: b.top, width: b.size, height: b.size, opacity: b.opacity }}
-					/>
-				))}
-			</div>
-
-			{/* Right form panel */}
-			<div className='flex flex-1 flex-col items-center justify-center bg-[#13161b] relative px-8 py-10'>
+		<div
+			className='min-h-screen w-screen flex items-center justify-center px-6 py-10 overflow-hidden'
+			style={{
+				background:
+					'linear-gradient(160deg, #041830 0%, #0b2b4f 30%, #0a4b75 60%, #0b6e9c 100%)',
+			}}>
+			<div className='relative w-full max-w-md space-y-6 rounded-2xl border border-white/10 bg-[#12151b]/90 p-8 shadow-2xl backdrop-blur-sm'>
 				{/* Logo */}
-				<div className='absolute top-6 right-8'>
+				<div className='flex justify-center'>
 					<Link href='/'>
-					<Image
-						src='/logo.png'
-						alt='Ao Cá Vui Vẻ'
-						width={56}
-						height={56}
-						className='object-contain'
-					/>
+						<Image
+							src='/logo.png'
+							alt='Ao Cá Vui Vẻ'
+							width={64}
+							height={64}
+							className='object-contain'
+						/>
 					</Link>
 				</div>
 
-				<div className='w-full max-w-sm space-y-6'>
+				<div className='text-center space-y-1'>
+					<h1 className='text-white text-2xl font-semibold'>Đăng nhập</h1>
+					<p className='text-sm text-white/60'>Quản lý tài khoản và theo dõi sự kiện của bạn.</p>
+				</div>
+
+				<div className='w-full space-y-6'>
 					<Form {...form}>
 						<form
 							onSubmit={form.handleSubmit(onSubmit)}
@@ -223,6 +207,34 @@ export default function LoginPage() {
 					</p>
 				</div>
 			</div>
+
+			{showVerifyPopup && (
+				<div className='fixed inset-0 z-50 flex items-center justify-center px-4'>
+					<div className='absolute inset-0 bg-black/60 backdrop-blur-sm' />
+					<div className='relative z-10 w-full max-w-md rounded-2xl border border-white/10 bg-[#12151b] p-6 shadow-2xl'>
+						<button
+							type='button'
+							onClick={() => setShowVerifyPopup(false)}
+							className='absolute right-4 top-4 text-gray-400 hover:text-white transition-colors'
+							aria-label='Đóng'>
+							×
+						</button>
+						<h2 className='text-white text-xl font-semibold'>Xác minh tài khoản</h2>
+						<p className='mt-2 text-sm text-white/70'>
+							Vui lòng xác minh tài khoản bằng link chúng tôi cung cấp trong email.
+						</p>
+						<div className='mt-5'>
+							<a
+								href={supportFacebookUrl}
+								target='_blank'
+								rel='noreferrer'
+								className='inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 transition-colors'>
+								Liên hệ Facebook
+							</a>
+						</div>
+					</div>
+				</div>
+			)}
 		</div>
 	)
 }

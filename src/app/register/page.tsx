@@ -79,64 +79,34 @@ export default function RegisterPage() {
 	}
 
 	return (
-		<div className='flex h-screen w-screen overflow-hidden'>
-			{/* Left artwork panel */}
-			<div
-				className='hidden md:flex flex-1 relative overflow-hidden flex-col items-start justify-start p-8'
-				style={{
-					background:
-						'linear-gradient(160deg, #00b4d8 0%, #0077b6 30%, #023e8a 70%, #03045e 100%)',
-				}}>
-				<Link href='/'>
-					<Image
-						src='/logo.png'
-						alt='Ao Cá Vui Vẻ'
-						width={56}
-						height={56}
-						className='object-contain relative z-10'
-					/>
-				</Link>
-				<div
-					className='absolute inset-0'
-					style={{
-						background:
-							'radial-gradient(ellipse 70% 50% at 50% 100%, rgba(0,220,255,0.2) 0%, transparent 70%)',
-					}}
-				/>
-				<div
-					className='absolute inset-0'
-					style={{
-						background:
-							'radial-gradient(ellipse 50% 40% at 80% 30%, rgba(100,220,255,0.15) 0%, transparent 70%)',
-					}}
-				/>
-				{[
-					{ left: '10%', top: '60%', size: 10, opacity: 0.35 },
-					{ left: '20%', top: '75%', size: 6, opacity: 0.25 },
-					{ left: '60%', top: '55%', size: 14, opacity: 0.2 },
-					{ left: '75%', top: '70%', size: 8, opacity: 0.25 },
-					{ left: '85%', top: '45%', size: 5, opacity: 0.2 },
-					{ left: '40%', top: '85%', size: 7, opacity: 0.3 },
-				].map((b, i) => (
-					<div
-						key={i}
-						className='absolute rounded-full border border-white'
-						style={{ left: b.left, top: b.top, width: b.size, height: b.size, opacity: b.opacity }}
-					/>
-				))}
-			</div>
+		<div
+			className='min-h-screen w-screen flex items-center justify-center px-6 py-10 overflow-hidden'
+			style={{
+				background:
+					'linear-gradient(160deg, #041830 0%, #0b2b4f 30%, #0a4b75 60%, #0b6e9c 100%)',
+			}}>
+			<div className='relative w-full max-w-md space-y-5 rounded-2xl border border-white/10 bg-[#12151b]/90 p-8 shadow-2xl backdrop-blur-sm'>
+				<div className='flex justify-center'>
+					<Link href='/'>
+						<Image
+							src='/logo.png'
+							alt='Ao Cá Vui Vẻ'
+							width={64}
+							height={64}
+							className='object-contain'
+						/>
+					</Link>
+				</div>
 
-			{/* Right form panel */}
-			<div className='flex flex-1 flex-col items-center justify-center bg-[#13161b] px-8 py-10 overflow-y-auto'>
-				<div className='w-full max-w-sm space-y-5'>
-					<h1 className='text-white text-2xl font-bold text-center mb-2'>
-						Đăng ký tài khoản
-					</h1>
+				<div className='text-center space-y-1'>
+					<h1 className='text-white text-2xl font-semibold'>Đăng ký tài khoản</h1>
+					<p className='text-sm text-white/60'>Tạo tài khoản để bắt đầu hành trình của bạn.</p>
+				</div>
 
-					<Form {...form}>
-						<form
-							onSubmit={form.handleSubmit(onSubmit)}
-							className='space-y-4'>
+				<Form {...form}>
+					<form
+						onSubmit={form.handleSubmit(onSubmit)}
+						className='space-y-4'>
 							{/* Email */}
 							<FormField
 								control={form.control}
@@ -279,18 +249,17 @@ export default function RegisterPage() {
 								{isLoading ? 'Đang tạo tài khoản...' : 'Tạo tài khoản'}
 							</button>
 						</form>
-					</Form>
+				</Form>
 
-					{/* Login link */}
-					<p className='text-center text-gray-500 text-sm'>
-						Bạn đã có tài khoản?{' '}
-						<Link
-							href='/login'
-							className='text-orange-400 font-semibold hover:text-orange-300 transition-colors'>
-							Đăng nhập
-						</Link>
-					</p>
-				</div>
+				{/* Login link */}
+				<p className='text-center text-gray-500 text-sm'>
+					Bạn đã có tài khoản?{' '}
+					<Link
+						href='/login'
+						className='text-orange-400 font-semibold hover:text-orange-300 transition-colors'>
+						Đăng nhập
+					</Link>
+				</p>
 			</div>
 		</div>
 	)
