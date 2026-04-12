@@ -30,6 +30,8 @@ const STATUS_COLORS: Record<Status, string> = {
 }
 
 const EMPTY_FORM = {
+	name: '',
+	server_number: '',
 	url: '',
 	status: 'offline' as Status,
 	ip: '',
@@ -80,6 +82,8 @@ export default function AdminServersPage() {
 		setCreating(true)
 		try {
 			await createServer({
+				name: form.name.trim() || undefined,
+				server_number: form.server_number ? Number(form.server_number) : null,
 				url: form.url.trim(),
 				status: form.status,
 				ip: form.ip.trim() || undefined,
@@ -99,6 +103,8 @@ export default function AdminServersPage() {
 	const startEdit = (server: GameServer) => {
 		setEditingId(server.id)
 		setEditForm({
+			name: server.name ?? '',
+			server_number: server.server_number != null ? String(server.server_number) : '',
 			url: server.url,
 			status: server.status,
 			ip: server.ip ?? '',
@@ -110,6 +116,8 @@ export default function AdminServersPage() {
 	const handleUpdate = async (id: string) => {
 		try {
 			await updateServer(id, {
+				name: editForm.name.trim() || undefined,
+				server_number: editForm.server_number ? Number(editForm.server_number) : null,
 				url: editForm.url.trim(),
 				status: editForm.status,
 				ip: editForm.ip.trim() || undefined,
@@ -124,8 +132,8 @@ export default function AdminServersPage() {
 		}
 	}
 
-	const handleDelete = async (id: string, url: string) => {
-		if (!confirm(`Xóa server "${url}"?`)) return
+	const handleDelete = async (id: string, label: string) => {
+		if (!confirm(`Xóa server "${label}"?`)) return
 		try {
 			await deleteServer(id)
 			toast.success('Đã xóa server!')
@@ -159,13 +167,34 @@ export default function AdminServersPage() {
 				<h2 className='text-white font-semibold'>Thêm server mới</h2>
 				<form onSubmit={handleCreate} className='flex flex-wrap gap-3 items-end'>
 					<div className='space-y-1'>
+						<label className='text-xs text-gray-400'>Số server</label>
+						<input
+							type='number'
+							min={1}
+							value={form.server_number}
+							onChange={(e) => setForm({ ...form, server_number: e.target.value })}
+							placeholder='1'
+							className={`${inputCls} w-20`}
+						/>
+					</div>
+					<div className='space-y-1'>
+						<label className='text-xs text-gray-400'>Tên server</label>
+						<input
+							type='text'
+							value={form.name}
+							onChange={(e) => setForm({ ...form, name: e.target.value })}
+							placeholder='Server Mới'
+							className={`${inputCls} w-40`}
+						/>
+					</div>
+					<div className='space-y-1'>
 						<label className='text-xs text-gray-400'>URL *</label>
 						<input
 							type='text'
 							value={form.url}
 							onChange={(e) => setForm({ ...form, url: e.target.value })}
 							placeholder='https://server1.aocavuive.com'
-							className={`${inputCls} w-56`}
+							className={`${inputCls} w-52`}
 							required
 						/>
 					</div>
@@ -209,7 +238,7 @@ export default function AdminServersPage() {
 							value={form.note}
 							onChange={(e) => setForm({ ...form, note: e.target.value })}
 							placeholder='Ghi chú...'
-							className={`${inputCls} w-48`}
+							className={`${inputCls} w-44`}
 						/>
 					</div>
 					<button
@@ -233,6 +262,8 @@ export default function AdminServersPage() {
 						<table className='w-full text-sm text-white'>
 							<thead>
 								<tr className='text-gray-400 border-b border-white/10 text-left'>
+									<th className='py-2 pr-4 w-12'>Số</th>
+									<th className='py-2 pr-4'>Tên</th>
 									<th className='py-2 pr-4'>URL</th>
 									<th className='py-2 pr-4'>Trạng thái</th>
 									<th className='py-2 pr-4'>IP</th>
@@ -247,10 +278,29 @@ export default function AdminServersPage() {
 										<tr key={server.id} className='border-b border-white/5'>
 											<td className='py-2 pr-3'>
 												<input
+													type='number'
+													min={1}
+													value={editForm.server_number}
+													onChange={(e) =>
+														setEditForm({ ...editForm, server_number: e.target.value })
+													}
+													className={`${inputCls} w-16`}
+												/>
+											</td>
+											<td className='py-2 pr-3'>
+												<input
+													type='text'
+													value={editForm.name}
+													onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+													className={`${inputCls} w-36`}
+												/>
+											</td>
+											<td className='py-2 pr-3'>
+												<input
 													type='text'
 													value={editForm.url}
 													onChange={(e) => setEditForm({ ...editForm, url: e.target.value })}
-													className={`${inputCls} w-48`}
+													className={`${inputCls} w-44`}
 												/>
 											</td>
 											<td className='py-2 pr-3'>
@@ -290,7 +340,7 @@ export default function AdminServersPage() {
 													type='text'
 													value={editForm.note}
 													onChange={(e) => setEditForm({ ...editForm, note: e.target.value })}
-													className={`${inputCls} w-40`}
+													className={`${inputCls} w-36`}
 												/>
 											</td>
 											<td className='py-2'>
@@ -313,7 +363,13 @@ export default function AdminServersPage() {
 										<tr
 											key={server.id}
 											className='border-b border-white/5 hover:bg-white/5 transition-colors'>
-											<td className='py-2 pr-4 font-medium max-w-[200px] truncate'>
+											<td className='py-2 pr-4 text-gray-300'>
+												{server.server_number ?? '—'}
+											</td>
+											<td className='py-2 pr-4 font-medium'>
+												{server.name || '—'}
+											</td>
+											<td className='py-2 pr-4 max-w-[180px] truncate'>
 												<a
 													href={server.url}
 													target='_blank'
@@ -330,7 +386,7 @@ export default function AdminServersPage() {
 											</td>
 											<td className='py-2 pr-4 text-gray-300'>{server.ip ?? '—'}</td>
 											<td className='py-2 pr-4 text-gray-300'>{server.port ?? '—'}</td>
-											<td className='py-2 pr-4 text-gray-400 max-w-[160px] truncate'>
+											<td className='py-2 pr-4 text-gray-400 max-w-[140px] truncate'>
 												{server.note || '—'}
 											</td>
 											<td className='py-2'>
@@ -341,7 +397,12 @@ export default function AdminServersPage() {
 														Sửa
 													</button>
 													<button
-														onClick={() => handleDelete(server.id, server.url)}
+														onClick={() =>
+															handleDelete(
+																server.id,
+																server.name ?? server.url,
+															)
+														}
 														className='px-3 py-1 rounded-lg text-red-400 text-xs font-semibold bg-red-400/10 hover:bg-red-400/20 transition-colors'>
 														Xóa
 													</button>

@@ -2,6 +2,8 @@ import { getApiUrl } from '@/config/api'
 
 export interface GameServer {
 	id: string
+	name: string | null
+	server_number: number | null
 	url: string
 	status: 'online' | 'offline' | 'maintenance'
 	ip: string | null
@@ -12,6 +14,8 @@ export interface GameServer {
 }
 
 export type CreateServerPayload = {
+	name?: string
+	server_number?: number | null
 	url: string
 	status?: 'online' | 'offline' | 'maintenance'
 	ip?: string
