@@ -9,6 +9,12 @@ import { useAuth } from '@/hooks/useAuth'
 
 const MENU_ITEMS = [
 	{
+		href: '/admin/servers',
+		label: 'Quản lý Servers',
+		description: 'Thêm, sửa, xóa danh sách máy chủ game',
+		icon: '🖥️',
+	},
+	{
 		href: '/admin/vip',
 		label: 'Quản lý mốc VIP',
 		description: 'Tạo, chỉnh sửa và xóa các mốc VIP theo exp',
