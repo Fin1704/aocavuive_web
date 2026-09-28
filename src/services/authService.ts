@@ -4,6 +4,10 @@ export interface UserAccount {
 	id: string
 	user_id: string
 	gold: number
+	shells: number
+	checkin_streak: number
+	checkin_best_streak: number
+	last_checkin_date: string | null
 	experience: number
 	vip: { id: string; vip_level: number; exp_required: number } | null
 	created_at: string
@@ -113,7 +117,19 @@ export async function adminSetUsername(userId: string, username: string): Promis
 	return handleResponse<AuthUser>(res)
 }
 
-export async function refreshTokens(refreshToken: string): Promise<LoginResponse> {
+type RefreshResponse = Omit<LoginResponse, 'user'>
+let refreshPending: { token: string; promise: Promise<RefreshResponse> } | null = null
+
+export function refreshTokens(refreshToken: string): Promise<RefreshResponse> {
+	if (refreshPending?.token === refreshToken) return refreshPending.promise
+	const promise = requestRefresh(refreshToken).finally(() => {
+		if (refreshPending?.promise === promise) refreshPending = null
+	})
+	refreshPending = { token: refreshToken, promise }
+	return promise
+}
+
+async function requestRefresh(refreshToken: string): Promise<RefreshResponse> {
 	const res = await fetch(getApiUrl('/auth/refresh'), {
 		method: 'POST',
 		headers: { 'Content-Type': 'application/json' },
@@ -121,7 +137,7 @@ export async function refreshTokens(refreshToken: string): Promise<LoginResponse
 	})
 	if (!res.ok) throw new Error('REFRESH_FAILED')
 	const json = await res.json()
-	return json.data as LoginResponse
+	return json.data as RefreshResponse
 }
 
 export async function register(email: string, password: string, username?: string): Promise<RegisterResponse> {

@@ -43,8 +43,9 @@ export const useAuth = () => {
 						const newTokens = await refreshTokens(storedRefresh)
 						localStorage.setItem('access_token', newTokens.access_token)
 						localStorage.setItem('refresh_token', newTokens.refresh_token)
-						localStorage.setItem(AUTH_USER_KEY, JSON.stringify(newTokens.user))
-						setUser(newTokens.user)
+						const fresh = await getMe(newTokens.access_token)
+						localStorage.setItem(AUTH_USER_KEY, JSON.stringify(fresh))
+						setUser(fresh)
 					} catch {
 						// Refresh thất bại → đăng xuất sạch
 						clearStorage()

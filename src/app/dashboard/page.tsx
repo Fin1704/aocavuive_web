@@ -6,6 +6,7 @@ import { FaCoins, FaStar, FaBolt, FaTrophy, FaMedal, FaFish, FaCalendarDays } fr
 import moment from 'moment'
 import 'moment/locale/vi'
 
+import DailyCheckIn from '@/components/DailyCheckIn'
 import { style } from '@/constants/style'
 import { useAuth } from '@/hooks/useAuth'
 import { getVipTiers, getLeaderboard, VipTier, LeaderboardUser } from '@/services/vipService'
@@ -90,6 +91,8 @@ export default function DashboardPage() {
 					)}
 				</div>
 			</div>
+
+			<div className='max-w-lg'><DailyCheckIn key={user!.id} userId={user!.id} /></div>
 
 			{/* Stats row */}
 			<div className='grid grid-cols-3 gap-3'>

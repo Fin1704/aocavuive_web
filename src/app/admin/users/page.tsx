@@ -9,6 +9,7 @@ import { FaAt, FaLock } from 'react-icons/fa6'
 import { style } from '@/constants/style'
 import { useAuth } from '@/hooks/useAuth'
 import { adminSetUsername } from '@/services/authService'
+import UserDirectory from './UserDirectory'
 
 export default function AdminUsersPage() {
 	const router = useRouter()
@@ -17,6 +18,7 @@ export default function AdminUsersPage() {
 	const [userId, setUserId] = useState('')
 	const [newUsername, setNewUsername] = useState('')
 	const [saving, setSaving] = useState(false)
+	const [revision, setRevision] = useState(0)
 	const [lastResult, setLastResult] = useState<{ userId: string; username: string } | null>(null)
 
 	useEffect(() => {
@@ -34,6 +36,7 @@ export default function AdminUsersPage() {
 			const updated = await adminSetUsername(userId.trim(), newUsername.trim())
 			toast.success(`Đã đặt username @${updated.username} cho ${updated.email}`)
 			setLastResult({ userId: updated.id, username: updated.username! })
+			setRevision(value => value + 1)
 			setUserId('')
 			setNewUsername('')
 		} catch (err: unknown) {
@@ -56,6 +59,8 @@ export default function AdminUsersPage() {
 				<span className='text-gray-600'>/</span>
 				<h1 className='text-2xl font-bold text-white'>Quản lý Users</h1>
 			</div>
+
+			<UserDirectory revision={revision} onSelect={setUserId} />
 
 			{/* Change username */}
 			<div className='bg-semidark rounded-2xl p-6 space-y-5 max-w-lg'>

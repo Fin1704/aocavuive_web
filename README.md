@@ -2,6 +2,8 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
+Trang quản trị trang phục: `/admin/outfits`, yêu cầu tài khoản admin. Form có TypeID cố định `1`, DetailID tự cấp, 15 nhóm trang phục, tên skin Spine và màu. Dữ liệu ghi về Account qua `NEXT_PUBLIC_API_URL` (origin, không gồm `/api/v1`). Account cần migration trang phục trước; xem [hướng dẫn catalog](../AoCaVuiVe-account/docs/outfit_catalog.md).
+
 First, run the development server:
 
 ```bash

@@ -17,7 +17,7 @@ import { z } from 'zod'
 import { v4 as uuidv4 } from 'uuid'
 import { zodResolver } from '@hookform/resolvers/zod'
 
-import { FaCoins } from 'react-icons/fa6'
+import DailyCheckIn from '@/components/DailyCheckIn'
 
 import Banner from '@/components/Hero/Banner'
 import Discover from '@/components/Discover'
@@ -140,41 +140,8 @@ const JoinCard = () => (
 	</div>
 )
 
-const AccountOverview = () => {
-	const { user } = useAuth()
-	const account = user?.account
-
-	return (
-		<div className='rounded-2xl bg-semidark p-5 space-y-4'>
-			<h3 className='text-base font-bold text-white'>Account Overview</h3>
-			<div className='flex justify-between'>
-				<div>
-					<div className='text-gray-400 text-xs mb-1'>VIP</div>
-					<div className='text-2xl font-bold text-white'>
-						{account?.vip ? `VIP ${account.vip.vip_level}` : 'Chưa có VIP'}
-					</div>
-				</div>
-				<div className='text-right'>
-					<div className='text-gray-400 text-xs mb-1'>Điểm thưởng</div>
-					<div className='flex items-center gap-1.5 justify-end'>
-						<FaCoins size={16} className='text-yellow-400' />
-						<span className='text-2xl font-bold text-white'>{account?.gold ?? 0}</span>
-						<span className='text-xs text-yellow-400 font-medium'>Gold</span>
-					</div>
-				</div>
-			</div>
-			<button
-				onClick={() => toast.info('Coming soon!')}
-				className='w-full py-2.5 rounded-lg text-white font-semibold text-sm transition-opacity hover:opacity-90'
-				style={{ backgroundImage: style.backgroundImage }}>
-				Nhận thưởng
-			</button>
-		</div>
-	)
-}
-
 export default function Home() {
-	const { isLoggedIn, mounted } = useAuth()
+	const { user, isLoggedIn, mounted } = useAuth()
 	const [secondEvent, setSecondEvent] = useState<IBlog | null>(null)
 
 	useEffect(() => {
@@ -206,12 +173,19 @@ export default function Home() {
 					</div>
 				)}
 
+				{mounted && isLoggedIn && <DailyCheckIn key={user!.id} userId={user!.id} />}
+
 				<Discover />
 			</div>
 
 			{/* Right column */}
 			<div className='space-y-4'>
-				{mounted && (isLoggedIn ? <AccountOverview /> : <JoinCard />)}
+				{mounted && (isLoggedIn ? <>
+					<div className='flex items-center justify-between gap-3 rounded-2xl bg-semidark p-4 text-sm'>
+						<span>{user?.account?.vip ? `VIP ${user.account.vip.vip_level}` : 'Chưa có VIP'}</span>
+						<span className='text-yellow-300'>{Number(user?.account?.gold ?? 0).toLocaleString('vi-VN')} Vàng</span>
+					</div>
+				</> : <JoinCard />)}
 				<Leaderboards />
 				<SubscribeCard />
 			</div>

@@ -9,6 +9,12 @@ import { useAuth } from '@/hooks/useAuth'
 
 const MENU_ITEMS = [
 	{
+		href: '/admin/outfits',
+		label: 'Quản lý trang phục',
+		description: 'Tạo trang phục theo 15 nhóm, skin Spine và màu sắc',
+		icon: '👕',
+	},
+	{
 		href: '/admin/servers',
 		label: 'Quản lý Servers',
 		description: 'Thêm, sửa, xóa danh sách máy chủ game',
