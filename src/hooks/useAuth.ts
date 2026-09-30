@@ -17,6 +17,30 @@ export const useAuth = () => {
 	const [mounted, setMounted] = useState(false)
 
 	useEffect(() => {
+		let active = true
+		const refreshProfile = async () => {
+			const token = localStorage.getItem('access_token')
+			if (!token) return
+			try {
+				const fresh = await getMe(token)
+				if (!active || localStorage.getItem('access_token') !== token) return
+				setUser(current => current?.id === fresh.id ? fresh : current)
+				localStorage.setItem(AUTH_USER_KEY, JSON.stringify(fresh))
+			} catch { /* Keep the last confirmed profile when refresh is unavailable. */ }
+		}
+		const storage = (event: StorageEvent) => {
+			if (event.key === 'aocavuive:checkin-updated') void refreshProfile()
+		}
+		window.addEventListener('aocavuive:checkin-updated', refreshProfile)
+		window.addEventListener('storage', storage)
+		return () => {
+			active = false
+			window.removeEventListener('aocavuive:checkin-updated', refreshProfile)
+			window.removeEventListener('storage', storage)
+		}
+	}, [])
+
+	useEffect(() => {
 		const init = async () => {
 			const accessToken = localStorage.getItem('access_token')
 			const storedRefresh = localStorage.getItem('refresh_token')

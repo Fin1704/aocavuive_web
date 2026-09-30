@@ -5,6 +5,9 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { FaAt, FaCamera, FaChevronRight, FaKey, FaLock, FaShield, FaUser } from 'react-icons/fa6'
 
+import UserAvatar from '@/components/UserAvatar'
+import CurrencyBalances from '@/components/CurrencyBalances'
+
 import { style } from '@/constants/style'
 import { useAuth, AUTH_USER_KEY } from '@/hooks/useAuth'
 import { setOwnUsername } from '@/services/authService'
@@ -29,7 +32,6 @@ export default function SettingsPage() {
 
 	if (!mounted || !isLoggedIn) return null
 
-	const avatarLetter = (user!.username ?? user!.email).charAt(0).toUpperCase()
 	const joinDate = user!.created_at
 		? new Date(user!.created_at).toLocaleDateString('vi-VN', {
 				day: '2-digit',
@@ -75,19 +77,7 @@ export default function SettingsPage() {
 			{/* Avatar card */}
 			<div className='bg-semidark rounded-2xl p-6 flex items-center gap-5'>
 				<div className='relative shrink-0'>
-					{user!.avatar_url ? (
-						<img
-							src={user!.avatar_url}
-							alt='avatar'
-							className='w-20 h-20 rounded-full object-cover ring-2 ring-white/10'
-						/>
-					) : (
-						<div
-							className='w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold text-white ring-2 ring-white/10'
-							style={{ backgroundImage: style.backgroundImage }}>
-							{avatarLetter}
-						</div>
-					)}
+					<UserAvatar src={user!.avatar_url} name={user!.username ?? user!.email} size={80} className='text-2xl ring-2 ring-white/10' />
 					<button
 						onClick={() => fileInputRef.current?.click()}
 						className='absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-[#1e2128] border border-white/15 flex items-center justify-center hover:bg-white/10 transition-colors shadow-lg'>
@@ -122,6 +112,11 @@ export default function SettingsPage() {
 					)}
 				</div>
 			</div>
+
+			<section className='rounded-2xl bg-semidark p-5 space-y-3' aria-label='Thông tin tiền tệ'>
+				<h2 className='font-semibold'>Số dư của bạn</h2>
+				<CurrencyBalances account={user!.account} className='text-sm text-white' />
+			</section>
 
 			{/* Tabs */}
 			<div className='flex gap-1 bg-semidark rounded-xl p-1'>

@@ -68,6 +68,7 @@ export default function DailyCheckIn({ userId }: { userId: string }) {
 			setData(result)
 			if (result.claimed) setAward(result.today_reward)
 			try { localStorage.setItem('aocavuive:checkin-updated', JSON.stringify({ userId, at: Date.now() })) } catch { /* Storage is optional. */ }
+			window.dispatchEvent(new Event('aocavuive:checkin-updated'))
 		} catch (err) {
 			if (!controller.signal.aborted) setError(err instanceof Error ? err.message : 'Chưa nhận được Sò. Bạn thử lại nhé!')
 		} finally {

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { FaStar, FaBolt, FaTrophy, FaMedal, FaFish, FaCalendarDays } from 'react-icons/fa6'
+import UserAvatar from '@/components/UserAvatar'
 import CurrencyIcon from '@/components/CurrencyIcon'
 import moment from 'moment'
 import 'moment/locale/vi'
@@ -62,7 +63,6 @@ export default function DashboardPage() {
 	// Find rank of current user
 	const myRank = leaderboard.findIndex((u) => u.user_id === user!.id) + 1
 	const displayName = user!.username ?? user!.email.split('@')[0]
-	const avatarLetter = (user!.username ?? user!.email).charAt(0).toUpperCase()
 
 	return (
 		<div className='space-y-6'>
@@ -75,11 +75,7 @@ export default function DashboardPage() {
 				<div className='absolute -right-2 -bottom-10 w-28 h-28 rounded-full bg-white/8' />
 
 				<div className='relative shrink-0 w-16 h-16 rounded-full bg-white/20 flex items-center justify-center text-2xl font-bold text-white ring-2 ring-white/30 overflow-hidden'>
-					{user!.avatar_url ? (
-						<img src={user!.avatar_url} alt='avatar' className='w-full h-full object-cover' />
-					) : (
-						avatarLetter
-					)}
+					<UserAvatar src={user!.avatar_url} name={displayName} size={64} />
 				</div>
 				<div className='relative'>
 					<p className='text-white/70 text-sm'>Chào mừng trở lại,</p>
@@ -96,7 +92,8 @@ export default function DashboardPage() {
 			<div className='max-w-lg'><DailyCheckIn key={user!.id} userId={user!.id} /></div>
 
 			{/* Stats row */}
-			<div className='grid grid-cols-3 gap-3'>
+			<div className='grid grid-cols-2 sm:grid-cols-4 gap-3'>
+				<StatCard icon={<CurrencyIcon currency='so' size={28} />} label='Sò' value={account?.shells == null ? '—' : Number(account.shells).toLocaleString('vi-VN')} bg='bg-orange-400/8' />
 				<StatCard
 					icon={<CurrencyIcon currency='gold' size={28} />}
 					label='Vàng'

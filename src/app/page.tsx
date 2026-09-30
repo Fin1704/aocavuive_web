@@ -18,7 +18,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 import DailyCheckIn from '@/components/DailyCheckIn'
-import CurrencyIcon from '@/components/CurrencyIcon'
+import CurrencyBalances from '@/components/CurrencyBalances'
 
 import Banner from '@/components/Hero/Banner'
 import Discover from '@/components/Discover'
@@ -182,9 +182,9 @@ export default function Home() {
 			{/* Right column */}
 			<div className='space-y-4'>
 				{mounted && (isLoggedIn ? <>
-					<div className='flex items-center justify-between gap-3 rounded-2xl bg-semidark p-4 text-sm'>
+					<div className='flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-semidark p-4 text-sm'>
 						<span>{user?.account?.vip ? `VIP ${user.account.vip.vip_level}` : 'Chưa có VIP'}</span>
-						<span className='inline-flex items-center gap-1.5 text-yellow-300'><CurrencyIcon currency='gold' />{Number(user?.account?.gold ?? 0).toLocaleString('vi-VN')} Vàng</span>
+						<CurrencyBalances account={user?.account} className='text-yellow-300' />
 					</div>
 				</> : <JoinCard />)}
 				<Leaderboards />
