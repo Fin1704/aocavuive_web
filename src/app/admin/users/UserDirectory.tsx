@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import CurrencyIcon from '@/components/CurrencyIcon'
 import { AdminUserDetail, AdminUserList, getAdminUser, listAdminUsers } from '@/services/adminUserService'
 
 const control = 'rounded-lg border border-white/15 bg-[#13161b] px-3 py-2 text-sm text-white disabled:opacity-40'
@@ -10,7 +11,7 @@ const onlineDate = (value: string | null) => value ? new Date(value).toLocaleStr
 function Fields({ entries }: { entries: [string, string | number | null | undefined][] }) {
 	return <dl className='grid grid-cols-1 sm:grid-cols-2 gap-4'>
 		{entries.map(([label, value]) => <div key={label} className='min-w-0'>
-			<dt className='text-xs text-gray-400'>{label}</dt>
+			<dt className='flex items-center gap-1.5 text-xs text-gray-400'>{label === 'Vàng' ? <CurrencyIcon currency='gold' size={20} /> : label === 'Số dư Sò' ? <CurrencyIcon currency='so' size={20} /> : null}{label}</dt>
 			<dd className='mt-1 text-sm text-white break-words whitespace-pre-wrap'>{display(value)}</dd>
 		</div>)}
 	</dl>
@@ -119,7 +120,7 @@ export default function UserDirectory({ revision, onSelect }: { revision: number
 						<tbody>{list.users.map(user => <tr key={user.id} className={`border-b border-white/5 ${selectedId === user.id ? 'bg-white/5' : ''}`}>
 							<td className='p-3'><span className='text-white'>{user.username ? `@${user.username}` : 'Chưa đặt username'}</span><p className='font-mono text-xs text-gray-400 mt-1'>{user.id}</p></td>
 							<td className='p-3 break-all'>{user.email}</td><td className='p-3'>{user.is_verified ? 'Đã xác minh' : 'Chưa xác minh'}</td>
-							<td className='p-3 font-semibold text-amber-200 whitespace-nowrap'>{user.shells?.toLocaleString('vi-VN') ?? '—'}</td>
+							<td className='p-3 font-semibold text-amber-200 whitespace-nowrap'><span className='inline-flex items-center gap-1.5'><CurrencyIcon currency='so' size={20} />{user.shells?.toLocaleString('vi-VN') ?? '—'}</span></td>
 							<td className='p-3 whitespace-nowrap'>{user.checkin_streak ?? 0} ngày</td>
 							<td className='p-3 whitespace-nowrap'>{onlineDate(user.last_online_at)}</td>
 							<td className='p-3 whitespace-nowrap'>{display(user.created_at)}</td>

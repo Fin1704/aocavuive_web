@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { FaCoins, FaStar, FaBolt, FaTrophy, FaMedal, FaFish, FaCalendarDays } from 'react-icons/fa6'
+import { FaStar, FaBolt, FaTrophy, FaMedal, FaFish, FaCalendarDays } from 'react-icons/fa6'
+import CurrencyIcon from '@/components/CurrencyIcon'
 import moment from 'moment'
 import 'moment/locale/vi'
 
@@ -97,8 +98,8 @@ export default function DashboardPage() {
 			{/* Stats row */}
 			<div className='grid grid-cols-3 gap-3'>
 				<StatCard
-					icon={<FaCoins size={18} className='text-yellow-400' />}
-					label='Gold'
+					icon={<CurrencyIcon currency='gold' size={28} />}
+					label='Vàng'
 					value={gold.toLocaleString('vi-VN')}
 					bg='bg-yellow-400/8'
 				/>

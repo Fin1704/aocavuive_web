@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { toast } from 'sonner'
-import { FaCoins } from 'react-icons/fa6'
+import CurrencyIcon from '@/components/CurrencyIcon'
 
 import { Button } from '@/components/ui/button'
 import { style } from '@/constants/style'
@@ -67,8 +67,8 @@ const Header = () => {
 								<div className='flex items-center gap-2 text-xs text-gray-400'>
 									<span>{user?.account?.vip ? `VIP ${user.account.vip.vip_level}` : 'Chưa có VIP'}</span>
 									<span className='flex items-center gap-1'>
-										<FaCoins size={11} className='text-yellow-400' />
-										<span className='text-white font-medium'>{user?.account?.gold ?? 0} Gold</span>
+										<CurrencyIcon currency='gold' size={20} />
+										<span className='text-white font-medium'>{user?.account?.gold ?? 0} Vàng</span>
 									</span>
 								</div>
 							</div>

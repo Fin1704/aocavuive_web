@@ -1,6 +1,8 @@
 'use client'
 
 import { usePathname } from 'next/navigation'
+import Link from 'next/link'
+import CurrencyIcon from '@/components/CurrencyIcon'
 import { ReactNode } from 'react'
 
 import Header from '../components/Header'
@@ -25,8 +27,12 @@ const DefaultLayout = ({ children }: { children: ReactNode }) => {
 			<div className='flex h-[calc(100vh-64px)] bg-darker overflow-hidden'>
 				<Sidebar />
 
-				<div className='relative overflow-x-hidden flex-1 min-h-screen overflow-y-scroll'>
-					<main tabIndex={-1} className='px-6 pt-6 pb-20 text-white'>
+				<div className='relative min-w-0 min-h-0 overflow-x-hidden flex-1 overflow-y-auto'>
+					<main tabIndex={-1} className='px-4 sm:px-6 pt-6 pb-20 text-white'>
+						<Link href='/dashboard' className='mb-4 flex min-h-11 items-center justify-center gap-2 rounded-xl bg-semidark px-4 py-3 text-sm font-semibold text-orange-300 md:hidden'>
+							<CurrencyIcon currency='so' />
+							Điểm danh nhận Sò
+						</Link>
 						{children}
 					</main>
 				</div>

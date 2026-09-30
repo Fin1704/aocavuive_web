@@ -1,7 +1,8 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Check, Flame, Shell, RotateCw } from 'lucide-react'
+import { Check, Flame, RotateCw } from 'lucide-react'
+import CurrencyIcon from '../CurrencyIcon'
 import { CheckInStatus, claimCheckIn, getCheckIn } from '@/services/checkInService'
 import './daily-check-in.css'
 
@@ -88,12 +89,12 @@ export default function DailyCheckIn({ userId }: { userId: string }) {
 				<p className='check-in-offer'>Nhận {data?.reward_min ?? 1}–{data?.reward_max ?? 3} Sò mỗi ngày.</p>
 			</div>
 			<div className='check-in-wallet'>
-				<Shell size={26} className='check-in-shell' aria-hidden='true' />
+				<CurrencyIcon currency='so' size={36} className='check-in-shell' />
 				<div><span className='check-in-wallet-label'>Sò của bạn</span><p><strong>{data ? data.shells.toLocaleString('vi-VN') : '—'}</strong><span>Sò</span></p></div>
 			</div>
 		</div>
 		{data && <ol className='check-in-days' aria-label='Lịch điểm danh 7 ngày gần nhất'>{days.map((day, i) => <li key={day.key} className={`${day.reward ? 'is-collected' : ''} ${i === 6 ? 'is-today' : ''}`} aria-label={`${day.key}: ${day.reward ? `đã nhận ${day.reward} Sò` : i === 6 ? 'chưa điểm danh' : 'không điểm danh'}`}>
-			<span>{day.label}</span><div>{day.reward ? <Check size={18} aria-hidden='true' /> : <Shell size={18} aria-hidden='true' />}</div>
+			<span>{day.label}</span><div>{day.reward ? <Check size={18} aria-hidden='true' /> : <CurrencyIcon currency='so' size={24} />}</div>
 		</li>)}</ol>}
 		<div className='check-in-feedback' aria-live='polite' aria-atomic='true'>
 			{award !== null ? <p className='check-in-reward'><Check size={17} aria-hidden='true' /> Đã nhận +{award} Sò</p> : data?.checked_in_today ? <p>Hôm nay đã nhận {data.today_reward} Sò.</p> : !data && busy ? <p>Đang tải điểm danh...</p> : null}

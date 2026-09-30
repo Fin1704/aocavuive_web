@@ -18,6 +18,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 import DailyCheckIn from '@/components/DailyCheckIn'
+import CurrencyIcon from '@/components/CurrencyIcon'
 
 import Banner from '@/components/Hero/Banner'
 import Discover from '@/components/Discover'
@@ -155,14 +156,14 @@ export default function Home() {
 	return (
 		<div className='grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6'>
 			{/* Left column */}
-			<div className='space-y-4 min-w-0'>
+			<div className='flex flex-col gap-4 min-w-0'>
 				<h1 className='text-2xl font-semibold text-white'>Trung tâm sự kiện</h1>
 
-				<Banner />
+				<div className='order-2 md:order-none'><Banner /></div>
 
 				{secondEvent && (
 					<div
-						className='relative h-36 rounded-2xl overflow-hidden bg-cover bg-center cursor-pointer'
+						className='order-3 md:order-none relative h-36 rounded-2xl overflow-hidden bg-cover bg-center cursor-pointer'
 						style={{
 							backgroundImage: `url(${secondEvent.thumbnailURL}?v=${secondEvent.updatedAt || ''})`,
 						}}>
@@ -173,9 +174,9 @@ export default function Home() {
 					</div>
 				)}
 
-				{mounted && isLoggedIn && <DailyCheckIn key={user!.id} userId={user!.id} />}
+				{mounted && isLoggedIn && <div className='order-1 md:order-none'><DailyCheckIn key={user!.id} userId={user!.id} /></div>}
 
-				<Discover />
+				<div className='order-4 md:order-none'><Discover /></div>
 			</div>
 
 			{/* Right column */}
@@ -183,7 +184,7 @@ export default function Home() {
 				{mounted && (isLoggedIn ? <>
 					<div className='flex items-center justify-between gap-3 rounded-2xl bg-semidark p-4 text-sm'>
 						<span>{user?.account?.vip ? `VIP ${user.account.vip.vip_level}` : 'Chưa có VIP'}</span>
-						<span className='text-yellow-300'>{Number(user?.account?.gold ?? 0).toLocaleString('vi-VN')} Vàng</span>
+						<span className='inline-flex items-center gap-1.5 text-yellow-300'><CurrencyIcon currency='gold' />{Number(user?.account?.gold ?? 0).toLocaleString('vi-VN')} Vàng</span>
 					</div>
 				</> : <JoinCard />)}
 				<Leaderboards />

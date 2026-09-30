@@ -193,8 +193,10 @@ test('OceanIntro DOM integration', async t => {
   let route='/'
   Module._load=function(request,parent,isMain) {
    if(request==='next/navigation') return {usePathname:()=>route}
+   if(request==='next/link') return {__esModule:true,default:props=>React.createElement('a',props)}
    if(request==='@/components/OceanIntro') return {__esModule:true,default:freshIntro()}
    if(request==='@/components/UserActivity') return {__esModule:true,default:()=>null}
+   if(request==='@/components/CurrencyIcon') return original.call(this,path.resolve(__dirname,'../src/components/CurrencyIcon.tsx'),parent,isMain)
    if(request==='../components/Header') return {__esModule:true,default:()=>React.createElement('header',null,'Header')}
    if(request==='../components/Sidebar') return {__esModule:true,default:()=>React.createElement('aside',null,'Sidebar')}
    return original.call(this,request,parent,isMain)
@@ -208,6 +210,7 @@ test('OceanIntro DOM integration', async t => {
    await act(async()=>root.render(React.createElement(Layout,null,React.createElement('div',null,'Route content'))))
    assert.equal(!!document.querySelector('[role=dialog]'),pathname==='/')
    assert.ok(host.textContent.includes('Route content'))
+   assert.equal(!!document.querySelector('a[href="/dashboard"]'),!['/login','/register'].includes(pathname))
   }
   route='/admin/users'
   await act(async()=>root.render(React.createElement(Layout,null,'Admin users')))
