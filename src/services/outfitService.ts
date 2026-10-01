@@ -1,6 +1,12 @@
-import { getApiUrl } from '@/config/api'
+import { getApiUrl, getServerUrl } from '@/config/api'
 
-export interface OutfitSkin { item_code: string; slot_code: string; skin_name: string }
+export interface OutfitSkin {
+	item_code: string
+	slot_code: string
+	skin_name: string
+	image_path: string
+	image_url: string
+}
 export interface Outfit extends OutfitSkin {
 	type_id: 1
 	detail_id: number
@@ -34,3 +40,20 @@ async function request<T>(path: string, body?: CreateOutfit, signal?: AbortSigna
 export const getOutfits = (signal?: AbortSignal) => request<OutfitSnapshot>('', undefined, signal)
 export const getOutfitCatalog = (signal?: AbortSignal) => request<OutfitCatalog>('/catalog', undefined, signal)
 export const createOutfit = (body: CreateOutfit) => request<Outfit>('', body)
+
+export function getSkinImageUrl(item: { image_url?: string; image_path?: string } | null | undefined): string {
+	if (!item) return ''
+	const raw = item.image_url || item.image_path || ''
+	if (!raw) return ''
+	const base = getServerUrl().replace(/\/+$/, '')
+	if (raw.startsWith('http://') || raw.startsWith('https://')) {
+		try {
+			const parsed = new URL(raw)
+			return `${base}${parsed.pathname}${parsed.search}`
+		} catch {
+			return raw
+		}
+	}
+	const path = raw.startsWith('/') ? raw : `/${raw}`
+	return `${base}${path}`
+}
