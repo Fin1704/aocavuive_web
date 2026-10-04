@@ -27,6 +27,7 @@ interface RequestOptions {
 	method?: 'GET' | 'POST' | 'PUT' | 'DELETE'
 	body?: unknown
 	signal?: AbortSignal
+	headers?: Record<string, string>
 }
 
 // Mọi thao tác quản trị đi qua Account và được kiểm tra quyền admin ở API.
@@ -41,6 +42,7 @@ async function request<T>(path: string, options?: RequestOptions): Promise<T> {
 			'Content-Type': 'application/json',
 			'Accept-Language': 'vi',
 			...(token ? { Authorization: `Bearer ${token}` } : {}),
+			...(options?.headers ?? {}),
 		},
 		...(options?.body ? { body: JSON.stringify(options.body) } : {}),
 	})
@@ -54,8 +56,17 @@ async function request<T>(path: string, options?: RequestOptions): Promise<T> {
 export const getOutfits = (signal?: AbortSignal) => request<OutfitSnapshot>('', { signal })
 export const getOutfitCatalog = (signal?: AbortSignal) => request<OutfitCatalog>('/catalog', { signal })
 export const createOutfit = (body: CreateOutfit) => request<Outfit>('', { method: 'POST', body })
-export const updateOutfit = (detailId: number, body: UpdateOutfit) => request<Outfit>(`/${detailId}`, { method: 'PUT', body })
-export const deleteOutfit = (detailId: number) => request<{ detail_id: number }>(`/${detailId}`, { method: 'DELETE' })
+export const updateOutfit = (detailId: number, body: UpdateOutfit) =>
+	request<Outfit>(`/${detailId}`, {
+		method: 'POST',
+		body,
+		headers: { 'X-HTTP-Method-Override': 'PUT' },
+	})
+export const deleteOutfit = (detailId: number) =>
+	request<{ detail_id: number }>(`/${detailId}/delete`, {
+		method: 'POST',
+		headers: { 'X-HTTP-Method-Override': 'DELETE' },
+	})
 
 export function getSkinImageUrl(item: { image_url?: string; image_path?: string } | null | undefined): string {
 	if (!item) return ''
