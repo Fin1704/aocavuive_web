@@ -21,14 +21,28 @@ export interface OutfitCatalog {
 }
 export interface OutfitSnapshot { version: 1; total: number; items: Outfit[] }
 export type CreateOutfit = Pick<Outfit, 'type_id' | 'slot_code' | 'skin_name' | 'color_code'>
+export type UpdateOutfit = Partial<Pick<Outfit, 'slot_code' | 'skin_name' | 'color_code'>>
+
+interface RequestOptions {
+	method?: 'GET' | 'POST' | 'PUT' | 'DELETE'
+	body?: unknown
+	signal?: AbortSignal
+}
 
 // Mọi thao tác quản trị đi qua Account và được kiểm tra quyền admin ở API.
-async function request<T>(path: string, body?: CreateOutfit, signal?: AbortSignal): Promise<T> {
+async function request<T>(path: string, options?: RequestOptions): Promise<T> {
 	const token = localStorage.getItem('access_token')
+	const method = options?.method ?? (options?.body ? 'POST' : 'GET')
 	const response = await fetch(getApiUrl(`/admin/outfits${path}`), {
-		method: body ? 'POST' : 'GET', signal, cache: 'no-store',
-		headers: { 'Content-Type': 'application/json', 'Accept-Language': 'vi', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
-		...(body ? { body: JSON.stringify(body) } : {}),
+		method,
+		signal: options?.signal,
+		cache: 'no-store',
+		headers: {
+			'Content-Type': 'application/json',
+			'Accept-Language': 'vi',
+			...(token ? { Authorization: `Bearer ${token}` } : {}),
+		},
+		...(options?.body ? { body: JSON.stringify(options.body) } : {}),
 	})
 	const result = await response.json().catch(() => null)
 	if (!response.ok || result?.status !== 'success') {
@@ -37,9 +51,11 @@ async function request<T>(path: string, body?: CreateOutfit, signal?: AbortSigna
 	return result.data as T
 }
 
-export const getOutfits = (signal?: AbortSignal) => request<OutfitSnapshot>('', undefined, signal)
-export const getOutfitCatalog = (signal?: AbortSignal) => request<OutfitCatalog>('/catalog', undefined, signal)
-export const createOutfit = (body: CreateOutfit) => request<Outfit>('', body)
+export const getOutfits = (signal?: AbortSignal) => request<OutfitSnapshot>('', { signal })
+export const getOutfitCatalog = (signal?: AbortSignal) => request<OutfitCatalog>('/catalog', { signal })
+export const createOutfit = (body: CreateOutfit) => request<Outfit>('', { method: 'POST', body })
+export const updateOutfit = (detailId: number, body: UpdateOutfit) => request<Outfit>(`/${detailId}`, { method: 'PUT', body })
+export const deleteOutfit = (detailId: number) => request<{ detail_id: number }>(`/${detailId}`, { method: 'DELETE' })
 
 export function getSkinImageUrl(item: { image_url?: string; image_path?: string } | null | undefined): string {
 	if (!item) return ''
