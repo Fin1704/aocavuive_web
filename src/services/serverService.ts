@@ -77,8 +77,11 @@ export async function createServer(data: CreateServerPayload): Promise<GameServe
 // Admin: cập nhật server
 export async function updateServer(id: string, data: UpdateServerPayload): Promise<GameServer> {
 	const res = await fetch(getApiUrl(`/admin/servers/${id}`), {
-		method: 'PUT',
-		headers: authHeaders(),
+		method: 'POST',
+		headers: {
+			...authHeaders(),
+			'X-HTTP-Method-Override': 'PUT',
+		},
 		body: JSON.stringify(data),
 	})
 	return handleResponse<GameServer>(res)
@@ -86,9 +89,12 @@ export async function updateServer(id: string, data: UpdateServerPayload): Promi
 
 // Admin: xóa server
 export async function deleteServer(id: string): Promise<void> {
-	const res = await fetch(getApiUrl(`/admin/servers/${id}`), {
-		method: 'DELETE',
-		headers: authHeaders(),
+	const res = await fetch(getApiUrl(`/admin/servers/${id}/delete`), {
+		method: 'POST',
+		headers: {
+			...authHeaders(),
+			'X-HTTP-Method-Override': 'DELETE',
+		},
 	})
 	await handleResponse<null>(res)
 }
