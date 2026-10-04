@@ -74,7 +74,7 @@ export default function OutfitsPage() {
 	}
 
 	if (!mounted || !isLoggedIn || !isAdmin) return null
-	const filtered = outfits.filter(item => `${item.detail_id} ${item.skin_name} ${item.color_code} ${catalog?.slots.find(s => s.code === item.slot_code)?.label}`.toLowerCase().includes(search.toLowerCase())).sort((a, b) => b.detail_id - a.detail_id)
+	const filtered = outfits.filter(item => `${item.detail_id} ${item.skin_name} ${item.color_code} ${item.slot_code}`.toLowerCase().includes(search.toLowerCase())).sort((a, b) => b.detail_id - a.detail_id)
 	const skins = catalog?.items.filter(item => item.slot_code === slot) ?? []
 	const selectedSkin = skins.find(item => item.skin_name === skin)
 
@@ -97,7 +97,7 @@ export default function OutfitsPage() {
 								<label className='text-sm text-gray-400' htmlFor='type-id'>TypeID<input id='type-id' className={field} value='1' readOnly /></label>
 								<label className='text-sm text-gray-400' htmlFor='detail-id'>DetailID<input id='detail-id' className={field} value='Tự động cấp' readOnly /></label>
 							</div><p className='mt-2 text-xs text-gray-400'>DetailID tự tăng từ 1, hiển thị sau khi tạo.</p></div>
-							<label className='block text-sm' htmlFor='outfit-slot'>Loại trang phục<select id='outfit-slot' className={field} value={slot} onChange={event => { setSlot(event.target.value); setSkin('') }} required>{catalog?.slots.map(item => <option key={item.code} value={item.code}>{item.label}</option>)}</select></label>
+							<label className='block text-sm' htmlFor='outfit-slot'>Loại trang phục (slot_code)<select id='outfit-slot' className={field} value={slot} onChange={event => { setSlot(event.target.value); setSkin('') }} required>{catalog?.slots.map(item => <option key={item.code} value={item.code}>{item.code}</option>)}</select></label>
 							<label className='block text-sm' htmlFor='outfit-skin'>ID trang phục<select id='outfit-skin' className={field} value={skin} onChange={event => setSkin(event.target.value)} required><option value=''>Chọn trang phục</option>{skins.map(item => <option key={item.skin_name} value={item.skin_name}>{item.skin_name}</option>)}</select><span className='mt-2 block text-xs text-gray-400'>Tên skin gốc trong Spine · {skins.length} lựa chọn</span></label>
 							
 							{/* Preview ảnh minh họa & Link tham chiếu */}
@@ -240,7 +240,7 @@ export default function OutfitsPage() {
 										<td className='px-3 py-4 font-mono whitespace-nowrap'>{item.type_id}:{item.detail_id}</td>
 
 										{/* Loại */}
-										<td className='whitespace-nowrap px-3 py-4'>{catalog?.slots.find(slot => slot.code === item.slot_code)?.label ?? item.slot_code}</td>
+										<td className='whitespace-nowrap px-3 py-4 font-mono text-xs text-gray-200'>{item.slot_code}</td>
 
 										{/* ID trang phục */}
 										<td className='px-3 py-4 font-mono text-xs'>{item.skin_name}</td>
