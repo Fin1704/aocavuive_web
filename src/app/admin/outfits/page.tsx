@@ -4,10 +4,10 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, RefreshCw, Shirt, Copy, ExternalLink, Pencil, Trash2, X, AlertTriangle } from 'lucide-react'
+import { ArrowLeft, RefreshCw, Shirt, Copy, ExternalLink, Power, PowerOff, AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAuth } from '@/hooks/useAuth'
-import { createOutfit, updateOutfit, deleteOutfit, getOutfitCatalog, getOutfits, getSkinImageUrl, getClientResourcePath } from '@/services/outfitService'
+import { createOutfit, updateOutfit, getOutfitCatalog, getOutfits, getSkinImageUrl, getClientResourcePath } from '@/services/outfitService'
 import type { Outfit, OutfitCatalog } from '@/services/outfitService'
 
 const field = 'mt-2 w-full rounded-xl border border-white/15 bg-[#13161b] px-3 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-cyan-400 disabled:opacity-60'
@@ -28,8 +28,7 @@ export default function OutfitsPage() {
 	const [error, setError] = useState('')
 	const [message, setMessage] = useState('')
 
-	// State cho sửa và xóa
-	const [editingOutfit, setEditingOutfit] = useState<Outfit | null>(null)
+	// Identity của outfit là bất biến; admin chỉ bật/tắt khả năng cấp mới.
 	const [deletingOutfit, setDeletingOutfit] = useState<Outfit | null>(null)
 	const [deleting, setDeleting] = useState(false)
 
@@ -61,24 +60,6 @@ export default function OutfitsPage() {
 		toast.success(`Đã sao chép ${label}!`)
 	}
 
-	const handleStartEdit = (item: Outfit) => {
-		setEditingOutfit(item)
-		setSlot(item.slot_code)
-		setSkin(item.skin_name)
-		setColor(item.color_code)
-		setError('')
-		setMessage('')
-		window.scrollTo({ top: 0, behavior: 'smooth' })
-	}
-
-	const handleCancelEdit = () => {
-		setEditingOutfit(null)
-		setSlot('helmet')
-		setSkin('')
-		setColor('#FFFFFF')
-		setError('')
-	}
-
 	async function submit(event: FormEvent<HTMLFormElement>) {
 		event.preventDefault()
 		if (submitting.current || loading || !catalog) return
@@ -89,25 +70,12 @@ export default function OutfitsPage() {
 		submitting.current = true
 		setSaving(true)
 		try {
-			if (editingOutfit) {
-				const updated = await updateOutfit(editingOutfit.detail_id, {
-					slot_code: slot,
-					skin_name: skin,
-					color_code: color.toUpperCase(),
-				})
-				setOutfits(rows => rows.map(row => row.detail_id === updated.detail_id ? updated : row))
-				const msg = `Đã cập nhật Item 1:${updated.detail_id} — ${updated.skin_name}.`
-				setMessage(msg)
-				toast.success(msg)
-				handleCancelEdit()
-			} else {
-				const created = await createOutfit({ type_id: 1, slot_code: slot, skin_name: skin, color_code: color.toUpperCase() })
-				setOutfits(rows => [...rows.filter(row => row.detail_id !== created.detail_id), created])
-				const msg = `Đã tạo Item 1:${created.detail_id} — ${created.skin_name}.`
-				setMessage(msg)
-				toast.success(msg)
-				setSkin('')
-			}
+			const created = await createOutfit({ type_id: 1, slot_code: slot, skin_name: skin, color_code: color.toUpperCase() })
+			setOutfits(rows => [...rows.filter(row => row.detail_id !== created.detail_id), created])
+			const msg = `Đã tạo Item 1:${created.detail_id} — ${created.skin_name}.`
+			setMessage(msg)
+			toast.success(msg)
+			setSkin('')
 		} catch (error) {
 			const err = errorText(error)
 			setError(err)
@@ -122,12 +90,9 @@ export default function OutfitsPage() {
 		if (!deletingOutfit || deleting) return
 		setDeleting(true)
 		try {
-			await deleteOutfit(deletingOutfit.detail_id)
-			setOutfits(rows => rows.filter(row => row.detail_id !== deletingOutfit.detail_id))
-			if (editingOutfit?.detail_id === deletingOutfit.detail_id) {
-				handleCancelEdit()
-			}
-			const msg = `Đã xóa Item 1:${deletingOutfit.detail_id} (${deletingOutfit.skin_name}).`
+			const updated = await updateOutfit(deletingOutfit.detail_id, { is_active: false })
+			setOutfits(rows => rows.map(row => row.detail_id === updated.detail_id ? updated : row))
+			const msg = `Đã ngừng cấp mới Item 1:${deletingOutfit.detail_id}; dữ liệu người chơi được giữ nguyên.`
 			toast.success(msg)
 			setMessage(msg)
 			setDeletingOutfit(null)
@@ -135,6 +100,18 @@ export default function OutfitsPage() {
 			toast.error(errorText(error))
 		} finally {
 			setDeleting(false)
+		}
+	}
+
+	async function handleReactivate(item: Outfit) {
+		try {
+			const updated = await updateOutfit(item.detail_id, { is_active: true })
+			setOutfits(rows => rows.map(row => row.detail_id === updated.detail_id ? updated : row))
+			const msg = `Đã cho phép cấp mới Item 1:${item.detail_id}.`
+			setMessage(msg)
+			toast.success(msg)
+		} catch (error) {
+			toast.error(errorText(error))
 		}
 	}
 
@@ -153,31 +130,20 @@ export default function OutfitsPage() {
 			{error && <p role='alert' className='mb-5 rounded-xl border border-red-400/30 bg-red-400/10 p-4 text-red-200'>{error}</p>}
 			{message && <p role='status' className='mb-5 rounded-xl border border-emerald-400/30 bg-emerald-400/10 p-4 text-emerald-200'>{message}</p>}
 			<div className='grid gap-6 lg:grid-cols-[380px_minmax(0,1fr)]'>
-				{/* Form Thêm / Sửa trang phục */}
-				<section className={`self-start rounded-2xl border p-6 shadow-xl transition-colors ${editingOutfit ? 'border-amber-400/40 bg-[#1e2029]' : 'border-white/10 bg-[#1b2028]'}`}>
+				{/* Form thêm identity mới; identity đã phát hành không thể sửa hoặc xóa. */}
+				<section className='self-start rounded-2xl border border-white/10 bg-[#1b2028] p-6 shadow-xl'>
 					<div className='mb-6 flex items-center justify-between'>
 						<div>
-							<h2 className={`text-lg font-semibold flex items-center gap-2 ${editingOutfit ? 'text-amber-300' : 'text-white'}`}>
-								{editingOutfit ? <><Pencil size={18} /> Sửa trang phục</> : 'Thêm trang phục'}
-							</h2>
-							{editingOutfit && <p className='text-xs text-amber-400/80 mt-1 font-mono'>Đang sửa Item 1:{editingOutfit.detail_id}</p>}
+							<h2 className='text-lg font-semibold text-white'>Thêm trang phục</h2>
+							<p className='mt-1 text-xs text-gray-400'>Item đã tạo chỉ có thể bật/tắt cấp mới để giữ an toàn dữ liệu người chơi.</p>
 						</div>
-						{editingOutfit && (
-							<button
-								type='button'
-								onClick={handleCancelEdit}
-								className='text-xs text-gray-400 hover:text-white flex items-center gap-1 px-2.5 py-1 rounded-lg border border-white/10 hover:bg-white/5 cursor-pointer transition-colors'
-							>
-								<X size={14} /> Hủy sửa
-							</button>
-						)}
 					</div>
 					<form onSubmit={submit}>
 						<fieldset disabled={loading || saving || !catalog} className='space-y-5 disabled:opacity-60'>
 							<div><p className='text-sm font-medium'>ID Item</p><div className='mt-2 grid grid-cols-2 gap-3'>
 								<label className='text-sm text-gray-400' htmlFor='type-id'>TypeID<input id='type-id' className={field} value='1' readOnly /></label>
-								<label className='text-sm text-gray-400' htmlFor='detail-id'>DetailID<input id='detail-id' className={field} value={editingOutfit ? String(editingOutfit.detail_id) : 'Tự động cấp'} readOnly /></label>
-							</div><p className='mt-2 text-xs text-gray-400'>{editingOutfit ? `Đang chỉnh sửa bản ghi có ID ${editingOutfit.detail_id}.` : 'DetailID tự tăng từ 1, hiển thị sau khi tạo.'}</p></div>
+								<label className='text-sm text-gray-400' htmlFor='detail-id'>DetailID<input id='detail-id' className={field} value='Tự động cấp' readOnly /></label>
+							</div><p className='mt-2 text-xs text-gray-400'>DetailID tự tăng từ 1, hiển thị sau khi tạo.</p></div>
 							<label className='block text-sm' htmlFor='outfit-slot'>Loại trang phục (slot_code)<select id='outfit-slot' className={field} value={slot} onChange={event => { setSlot(event.target.value); setSkin('') }} required>{catalog?.slots.map(item => <option key={item.code} value={item.code}>{item.code}</option>)}</select></label>
 							<label className='block text-sm' htmlFor='outfit-skin'>ID trang phục<select id='outfit-skin' className={field} value={skin} onChange={event => setSkin(event.target.value)} required><option value=''>Chọn trang phục</option>{skins.map(item => <option key={item.skin_name} value={item.skin_name}>{item.skin_name}</option>)}</select><span className='mt-2 block text-xs text-gray-400'>Tên skin gốc trong Spine · {skins.length} lựa chọn</span></label>
 							
@@ -251,23 +217,11 @@ export default function OutfitsPage() {
 							<div className='flex gap-3'>
 								<button
 									type='submit'
-									className={`flex-1 rounded-xl py-3 font-semibold text-slate-950 disabled:opacity-50 cursor-pointer transition-colors ${
-										editingOutfit ? 'bg-amber-400 hover:bg-amber-300' : 'bg-cyan-400 hover:bg-cyan-300'
-									}`}
+									className='flex-1 rounded-xl bg-cyan-400 py-3 font-semibold text-slate-950 transition-colors hover:bg-cyan-300 disabled:opacity-50 cursor-pointer'
 									disabled={!skin}
 								>
-									{saving ? (editingOutfit ? 'Đang lưu…' : 'Đang tạo…') : (editingOutfit ? 'Lưu thay đổi' : 'Thêm trang phục')}
+									{saving ? 'Đang tạo…' : 'Thêm trang phục'}
 								</button>
-								{editingOutfit && (
-									<button
-										type='button'
-										onClick={handleCancelEdit}
-										disabled={saving}
-										className='rounded-xl border border-white/15 px-4 py-3 text-sm text-gray-300 hover:bg-white/5 hover:text-white cursor-pointer transition-colors'
-									>
-										Hủy
-									</button>
-								)}
 							</div>
 						</fieldset>
 					</form>
@@ -281,16 +235,14 @@ export default function OutfitsPage() {
 						<table className='w-full text-left text-sm'>
 							<thead className='text-gray-400'>
 								<tr>
-									{['Hình & Tài nguyên', 'ID Item', 'Loại', 'ID trang phục', 'Màu', 'Thao tác'].map(title => (
+									{['Hình & Tài nguyên', 'ID Item', 'Loại', 'ID trang phục', 'Màu', 'Trạng thái', 'Thao tác'].map(title => (
 										<th key={title} className={`whitespace-nowrap border-b border-white/10 px-3 py-3 font-medium ${title === 'Thao tác' ? 'text-right' : ''}`}>{title}</th>
 									))}
 								</tr>
 							</thead>
 							<tbody>
-								{filtered.map(item => {
-									const isBeingEdited = editingOutfit?.detail_id === item.detail_id
-									return (
-										<tr key={item.detail_id} className={`border-b transition-colors ${isBeingEdited ? 'bg-amber-400/10 border-amber-400/20' : 'border-white/5 hover:bg-white/[0.02]'}`}>
+								{filtered.map(item => (
+										<tr key={item.detail_id} className={`border-b border-white/5 transition-colors hover:bg-white/[0.02] ${item.is_active ? '' : 'opacity-60'}`}>
 											{/* Hình ảnh và link tham chiếu */}
 											<td className='px-3 py-3'>
 												<div className='flex items-center gap-3'>
@@ -356,34 +308,34 @@ export default function OutfitsPage() {
 												</span>
 											</td>
 
+											<td className='px-3 py-4'>
+												<span className={`rounded-full px-2 py-1 text-xs font-medium ${item.is_active ? 'bg-emerald-400/10 text-emerald-300' : 'bg-gray-500/15 text-gray-400'}`}>
+													{item.is_active ? 'Đang cấp' : 'Ngừng cấp'}
+												</span>
+											</td>
+
 											{/* Thao tác */}
 											<td className='px-3 py-4 whitespace-nowrap text-right'>
 												<div className='flex items-center justify-end gap-2'>
-													<button
-														type='button'
-														onClick={() => handleStartEdit(item)}
-														className={`p-1.5 rounded-lg border text-gray-300 cursor-pointer transition-colors ${
-															isBeingEdited
-																? 'border-amber-400 bg-amber-400/20 text-amber-300'
-																: 'border-white/10 bg-white/5 hover:text-amber-300 hover:border-amber-400/40 hover:bg-amber-400/10'
-														}`}
-														title='Sửa mẫu trang phục này'
-													>
-														<Pencil size={15} />
-													</button>
-													<button
+													{item.is_active ? <button
 														type='button'
 														onClick={() => setDeletingOutfit(item)}
-														className='p-1.5 rounded-lg border border-white/10 bg-white/5 text-gray-300 hover:text-red-400 hover:border-red-400/40 hover:bg-red-400/10 cursor-pointer transition-colors'
-														title='Xóa mẫu trang phục này'
+														className='p-1.5 rounded-lg border border-white/10 bg-white/5 text-gray-300 hover:text-amber-300 hover:border-amber-400/40 hover:bg-amber-400/10 cursor-pointer transition-colors'
+														title='Ngừng cấp mới mẫu này'
 													>
-														<Trash2 size={15} />
-													</button>
+														<PowerOff size={15} />
+													</button> : <button
+														type='button'
+														onClick={() => void handleReactivate(item)}
+														className='p-1.5 rounded-lg border border-white/10 bg-white/5 text-gray-300 hover:text-emerald-300 hover:border-emerald-400/40 hover:bg-emerald-400/10 cursor-pointer transition-colors'
+														title='Cho phép cấp mới mẫu này'
+													>
+														<Power size={15} />
+													</button>}
 												</div>
 											</td>
 										</tr>
-									)
-								})}
+								))}
 							</tbody>
 						</table>
 					</div>
@@ -392,19 +344,19 @@ export default function OutfitsPage() {
 			</div>
 		</div>
 
-		{/* Modal xác nhận xóa */}
+		{/* Modal xác nhận ngừng cấp mới */}
 		{deletingOutfit && (
 			<div className='fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm animate-in fade-in duration-150'>
-				<div className='w-full max-w-md rounded-2xl border border-red-500/20 bg-[#1b2028] p-6 shadow-2xl space-y-4'>
-					<div className='flex items-center gap-3 text-red-400'>
-						<div className='p-2 rounded-xl bg-red-500/10 border border-red-500/20'>
+				<div className='w-full max-w-md rounded-2xl border border-amber-500/20 bg-[#1b2028] p-6 shadow-2xl space-y-4'>
+					<div className='flex items-center gap-3 text-amber-400'>
+						<div className='p-2 rounded-xl bg-amber-500/10 border border-amber-500/20'>
 							<AlertTriangle size={24} />
 						</div>
-						<h3 className='text-lg font-bold text-white'>Xác nhận xóa trang phục</h3>
+						<h3 className='text-lg font-bold text-white'>Xác nhận ngừng cấp mới</h3>
 					</div>
 
 					<p className='text-sm text-gray-300'>
-						Bạn có chắc chắn muốn xóa trang phục này không? Thao tác này sẽ xóa vĩnh viễn mẫu khỏi hệ thống.
+						Item vẫn được giữ trong catalog và đồ người chơi hiện có vẫn dùng bình thường. Chỉ các lượt cấp mới sẽ bị chặn.
 					</p>
 
 					<div className='flex items-center gap-3 rounded-xl border border-white/10 bg-[#13161b] p-3'>
@@ -435,17 +387,17 @@ export default function OutfitsPage() {
 							type='button'
 							disabled={deleting}
 							onClick={handleDeleteConfirm}
-							className='flex items-center gap-2 rounded-xl bg-red-500 hover:bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-red-500/20 cursor-pointer transition-colors disabled:opacity-50'
+							className='flex items-center gap-2 rounded-xl bg-amber-500 hover:bg-amber-600 px-4 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-amber-500/20 cursor-pointer transition-colors disabled:opacity-50'
 						>
 							{deleting ? (
 								<>
 									<RefreshCw size={15} className='animate-spin' />
-									Đang xóa…
+									Đang cập nhật…
 								</>
 							) : (
 								<>
-									<Trash2 size={15} />
-									Xóa trang phục
+									<PowerOff size={15} />
+									Ngừng cấp mới
 								</>
 							)}
 						</button>

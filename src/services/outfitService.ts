@@ -4,14 +4,15 @@ export interface OutfitSkin {
 	item_code: string
 	slot_code: string
 	skin_name: string
-	image_path: string
-	image_url: string
+	image_path?: string
+	image_url?: string
 }
 export interface Outfit extends OutfitSkin {
 	type_id: 1
 	detail_id: number
 	color_code: string
 	max_enhancement_level: number
+	is_active: boolean
 }
 export interface OutfitCatalog {
 	type_id: 1
@@ -21,7 +22,7 @@ export interface OutfitCatalog {
 }
 export interface OutfitSnapshot { version: 1; total: number; items: Outfit[] }
 export type CreateOutfit = Pick<Outfit, 'type_id' | 'slot_code' | 'skin_name' | 'color_code'>
-export type UpdateOutfit = Partial<Pick<Outfit, 'slot_code' | 'skin_name' | 'color_code'>>
+export type UpdateOutfit = Pick<Outfit, 'is_active'>
 
 interface RequestOptions {
 	method?: 'GET' | 'POST' | 'PUT' | 'DELETE'
@@ -62,12 +63,6 @@ export const updateOutfit = (detailId: number, body: UpdateOutfit) =>
 		body,
 		headers: { 'X-HTTP-Method-Override': 'PUT' },
 	})
-export const deleteOutfit = (detailId: number) =>
-	request<{ detail_id: number }>(`/${detailId}/delete`, {
-		method: 'POST',
-		headers: { 'X-HTTP-Method-Override': 'DELETE' },
-	})
-
 export function getSkinImageUrl(item: { image_url?: string; image_path?: string } | null | undefined): string {
 	if (!item) return ''
 	const raw = item.image_url || item.image_path || ''
