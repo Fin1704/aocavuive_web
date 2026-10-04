@@ -23,6 +23,12 @@ const MENU_ITEMS = [
 		icon: '🖥️',
 	},
 	{
+		href: '/admin/csv-links',
+		label: 'Quản lý Link CSV',
+		description: 'Lưu trữ và ánh xạ link Google Sheets CSV theo Key',
+		icon: '📊',
+	},
+	{
 		href: '/admin/vip',
 		label: 'Quản lý mốc VIP',
 		description: 'Tạo, chỉnh sửa và xóa các mốc VIP theo exp',
