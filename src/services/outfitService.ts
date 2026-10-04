@@ -57,3 +57,9 @@ export function getSkinImageUrl(item: { image_url?: string; image_path?: string 
 	const path = raw.startsWith('/') ? raw : `/${raw}`
 	return `${base}${path}`
 }
+
+export function getClientResourcePath(item: { image_path?: string } | null | undefined): string {
+	if (!item?.image_path) return ''
+	const cleaned = item.image_path.replace(/^\/+/, '')
+	return `res://${cleaned}`
+}
