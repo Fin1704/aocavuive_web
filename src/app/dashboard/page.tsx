@@ -187,7 +187,7 @@ export default function DashboardPage() {
 					<div className='flex items-center justify-between'>
 						<div className='flex items-center gap-2'>
 							<FaTrophy size={14} className='text-yellow-400' />
-							<span className='text-sm font-semibold text-white'>Bảng xếp hạng</span>
+							<span className='text-sm font-semibold text-white'>Bảng xếp hạng Sò</span>
 						</div>
 						{myRank > 0 && (
 							<span className='text-xs text-gray-400'>
@@ -225,9 +225,9 @@ export default function DashboardPage() {
 										</div>
 										<div className='text-right shrink-0'>
 											<p className='text-xs font-semibold text-white'>
-												{u.experience.toLocaleString('vi-VN')}
+												{u.shells.toLocaleString('vi-VN')}
 											</p>
-											<p className='text-[10px] text-gray-500'>EXP</p>
+											<p className='flex items-center justify-end gap-1 text-[10px] text-gray-400'><CurrencyIcon currency='so' size={14} /> Sò</p>
 										</div>
 									</div>
 								)

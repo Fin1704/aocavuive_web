@@ -20,7 +20,7 @@ const Leaderboards = () => {
 			<motion.div
 				{...animation.fromBot}
 				className='text-xl font-semibold'>
-				Bảng xếp hạng
+				Bảng xếp hạng Sò
 			</motion.div>
 
 			<motion.div
@@ -35,8 +35,8 @@ const Leaderboards = () => {
 						Player
 					</div>
 
-					<div className='shrink-0 uppercase font-semibold text-sm text-gray-300 w-14'>
-						VIP
+					<div className='shrink-0 uppercase font-semibold text-sm text-gray-300 w-24 text-right'>
+						Sò
 					</div>
 				</div>
 
@@ -46,7 +46,7 @@ const Leaderboards = () => {
 						index={i + 1}
 						photoURL={user.avatar_url}
 						displayName={user.username ?? user.email.split('@')[0]}
-						vip_level={user.vip_level}
+						shells={user.shells}
 					/>
 				))}
 			</motion.div>

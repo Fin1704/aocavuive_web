@@ -30,6 +30,7 @@ function getToken(): string | null {
 }
 
 export interface LeaderboardUser {
+	shells: number
 	user_id: string
 	email: string
 	username: string | null
@@ -38,10 +39,11 @@ export interface LeaderboardUser {
 	vip_level: number | null
 }
 
-// Get top 5 leaderboard by VIP/experience (public)
+// Get top 5 by current shell balance; the API owns ranking and tie-breaking.
 export async function getLeaderboard(): Promise<LeaderboardUser[]> {
 	const res = await fetch(getApiUrl('/leaderboard'), {
 		headers: { 'Content-Type': 'application/json' },
+		cache: 'no-store',
 	})
 	return handleResponse<LeaderboardUser[]>(res)
 }
