@@ -10,7 +10,8 @@ export interface MasterdataTarget {
  last_error: string | null
 }
 export interface MasterdataStatus { latest_revision: number; servers: MasterdataTarget[] }
-export interface MasterdataPublication { revision: number; sha256: string; targets: number }
+export interface MasterdataDelivery { server_id: string; revision: number; applied: boolean }
+export interface MasterdataPublication { revision: number; sha256: string; targets: number; deliveries: MasterdataDelivery[] }
 
 const errors: Record<string, string> = {
  invalid_masterdata_target: 'Không thể đăng ký. Kiểm tra địa chỉ HTTPS, server đã tồn tại và khóa kết nối đã cấu hình trên Account.',
@@ -26,7 +27,7 @@ async function request<T>(path: string, method: 'GET' | 'POST' | 'PUT' = 'GET', 
  if (signal?.aborted) controller.abort()
  signal?.addEventListener('abort', abort, { once: true })
  let timedOut = false
- const timer = setTimeout(() => { timedOut = true; controller.abort() }, 15000)
+ const timer = setTimeout(() => { timedOut = true; controller.abort() }, 25000)
  try {
   const response = await fetch(getApiUrl(`/admin/masterdata${path}`), {
    method, cache: 'no-store', signal: controller.signal,
@@ -72,9 +73,9 @@ export async function getMasterdataStatus(signal?: AbortSignal): Promise<Masterd
 
 export const publishMasterdata = () => request<MasterdataPublication>('/publish', 'POST')
 export const registerMasterdataServer = (id: string, callbackUrl: string) =>
- request<{ server_id: string }>(`/servers/${encodeURIComponent(id)}`, 'PUT', { callback_url: callbackUrl })
+ request<{ server_id: string; deliveries: MasterdataDelivery[] }>(`/servers/${encodeURIComponent(id)}`, 'PUT', { callback_url: callbackUrl })
 export const syncMasterdataServer = (id: string) =>
- request<{ server_id: string; revision: number }>(`/servers/${encodeURIComponent(id)}/sync`, 'POST')
+ request<{ server_id: string; revision: number; deliveries: MasterdataDelivery[] }>(`/servers/${encodeURIComponent(id)}/sync`, 'POST')
 
 export function validMasterdataCallback(value: string): boolean {
  try {

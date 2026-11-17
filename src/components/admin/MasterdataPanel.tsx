@@ -16,14 +16,10 @@ function stateOf(target: MasterdataTarget | undefined): { label: string; color: 
  if (!target) return { label: 'Chưa đăng ký', color: 'text-gray-400 bg-white/5' }
  if (!target.desired_revision) return { label: 'Chưa có bản phát hành', color: 'text-gray-400 bg-white/5' }
  if (target.applied_revision >= target.desired_revision) return { label: 'Đã áp dụng', color: 'text-emerald-300 bg-emerald-400/10' }
- if (target.last_error) return { label: 'Đang chờ thử lại', color: 'text-red-300 bg-red-400/10' }
- return { label: 'Đang chờ cập nhật', color: 'text-amber-300 bg-amber-400/10' }
+ if (target.last_error) return { label: 'Cập nhật chưa thành công', color: 'text-red-300 bg-red-400/10' }
+ return { label: 'Chưa xác nhận cập nhật', color: 'text-amber-300 bg-amber-400/10' }
 }
 
-function retryAt(value: string): string {
- const time = new Date(value.includes('T') ? value : `${value.replace(' ', 'T')}Z`)
- return Number.isNaN(time.valueOf()) ? '' : time.toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' })
-}
 
 export default function MasterdataPanel({ knownServers, disabled = false, onBusyChange }: { knownServers?: GameServer[]; disabled?: boolean; onBusyChange?: (busy: boolean) => void }) {
  const [servers, setServers] = useState<GameServer[]>([])
@@ -87,9 +83,8 @@ export default function MasterdataPanel({ knownServers, disabled = false, onBusy
  function publish() {
   void act('publish', async () => {
    const result = await publishMasterdata()
-   return result.targets > 0
-    ? `Đã phát hành phiên bản ${result.revision}, xếp hàng cập nhật cho ${result.targets} server. Theo dõi trạng thái áp dụng bên dưới.`
-    : `Đã tạo phiên bản ${result.revision}. Chưa có server đăng ký nhận cập nhật.`
+   const applied = result.deliveries.filter(delivery => delivery.applied).length
+   return `Đã phát hành phiên bản ${result.revision}. ${applied}/${result.targets} server đã xác nhận cập nhật.${applied < result.targets ? ' Bấm Gửi lại cho server chưa cập nhật.' : ''}`
   })
  }
 
@@ -103,9 +98,9 @@ export default function MasterdataPanel({ knownServers, disabled = false, onBusy
   if (!editing || !validMasterdataCallback(url)) { setError('Nhập URL HTTPS kết thúc bằng /internal/masterdata/update, không có tài khoản, tham số hoặc #.'); return }
   const id = editing
   void act(`register:${id}`, async () => {
-   await registerMasterdataServer(id, url)
+   const result = await registerMasterdataServer(id, url)
    setEditing(null)
-   return 'Đã lưu địa chỉ nhận cập nhật. Account sẽ gửi bản phát hành hiện hành nếu có.'
+   return result.deliveries.length === 0 ? 'Đã lưu địa chỉ. Chưa có bản phát hành để gửi.' : result.deliveries.every(item => item.applied) ? 'Đã lưu địa chỉ và server đã xác nhận cập nhật.' : 'Đã lưu địa chỉ nhưng server chưa xác nhận cập nhật. Bấm Gửi lại khi server sẵn sàng.'
   })
  }
 
@@ -133,7 +128,7 @@ export default function MasterdataPanel({ knownServers, disabled = false, onBusy
    <span>Đã áp dụng: <strong>{status ? `${applied}/${registered}` : '—'}</strong></span>
    {checkedAt && <span className='text-gray-500'>Kiểm tra lúc {checkedAt} (giờ Việt Nam)</span>}
   </div>
-  <p className='text-xs text-gray-400'>Trạng thái tự làm mới mỗi 10 giây khi mở trang. Xếp hàng thành công chưa có nghĩa server đã cập nhật xong.</p>
+  <p className='text-xs text-gray-400'>Trạng thái tự làm mới mỗi 10 giây khi mở trang. Phát hành sẽ gửi ngay tới server; server lỗi cần bấm Gửi lại.</p>
   {!status ? <p className='text-sm text-gray-400'>{error ? 'Chưa tải được trạng thái cập nhật.' : 'Đang tải các server nhận master…'}</p> : servers.length === 0 ? <p className='text-sm text-gray-400'>Chưa có server. Thêm server tại trang Quản lý Servers để cấu hình nhận master.</p> : <div className='overflow-x-auto'>
    <table className='w-full min-w-[720px] text-left text-sm'>
     <thead className='border-b border-white/10 text-gray-400'><tr><th scope='col' className='py-3 pr-4'>Server</th><th scope='col' className='py-3 pr-4'>Trạng thái master</th><th scope='col' className='py-3 pr-4'>Đã áp dụng / Mục tiêu</th><th scope='col' className='py-3 pr-4'>Địa chỉ nhận cập nhật</th><th scope='col' className='py-3'>Thao tác</th></tr></thead>
@@ -142,10 +137,10 @@ export default function MasterdataPanel({ knownServers, disabled = false, onBusy
      const state = stateOf(target)
      return <tr key={server.id} className='border-b border-white/5 align-top'>
       <td className='py-3 pr-4'><p className='font-medium'>{server.name || (server.server_number ? `Server ${server.server_number}` : server.id)}</p><p className='mt-1 max-w-48 break-all text-xs text-gray-500'>{server.id}</p></td>
-      <td className='py-3 pr-4'><span className={`inline-block rounded-full px-2 py-1 text-xs ${state.color}`}>{state.label}</span>{target?.last_error && target.applied_revision < target.desired_revision && <p className='mt-2 max-w-48 text-xs text-gray-400'>Chưa nhận xác nhận cập nhật. Đã thử {target.attempts} lần.{target.next_attempt_at && ` Lần tiếp theo: ${retryAt(target.next_attempt_at)}.`}</p>}</td>
+      <td className='py-3 pr-4'><span className={`inline-block rounded-full px-2 py-1 text-xs ${state.color}`}>{state.label}</span>{target?.last_error && target.applied_revision < target.desired_revision && <p className='mt-2 max-w-48 text-xs text-gray-400'>Chưa nhận xác nhận cập nhật. Đã gửi {target.attempts} lần. Kiểm tra server rồi bấm Gửi lại.</p>}</td>
       <td className='py-3 pr-4 tabular-nums'>{target ? `${target.applied_revision} / ${target.desired_revision}` : '—'}</td>
       <td className='max-w-72 break-all py-3 pr-4 text-xs text-gray-400'>{target?.callback_url || 'Chưa cấu hình'}</td>
-      <td className='py-3'><div className='flex flex-wrap gap-2'><button type='button' className={button} disabled={busy} onClick={() => configure(server, target)} aria-label={`Cấu hình master cho ${server.name || server.id}`}><Settings2 size={14} /> Cấu hình</button><button type='button' className={button} disabled={busy || !target || !status.latest_revision} onClick={() => void act(`sync:${server.id}`, async () => { const result = await syncMasterdataServer(server.id); return `Đã xếp hàng gửi lại phiên bản ${result.revision} cho ${server.name || server.id}.` })}>{pending === `sync:${server.id}` ? 'Đang gửi…' : 'Gửi lại'}</button></div></td>
+      <td className='py-3'><div className='flex flex-wrap gap-2'><button type='button' className={button} disabled={busy} onClick={() => configure(server, target)} aria-label={`Cấu hình master cho ${server.name || server.id}`}><Settings2 size={14} /> Cấu hình</button><button type='button' className={button} disabled={busy || !target || !status.latest_revision} onClick={() => void act(`sync:${server.id}`, async () => { const result = await syncMasterdataServer(server.id); return result.deliveries.some(item => item.applied) ? `Server ${server.name || server.id} đã xác nhận phiên bản ${result.revision}.` : `Server ${server.name || server.id} chưa cập nhật được. Kiểm tra kết nối rồi bấm Gửi lại.` })}>{pending === `sync:${server.id}` ? 'Đang gửi…' : 'Gửi lại'}</button></div></td>
      </tr>
     })}</tbody>
    </table>
