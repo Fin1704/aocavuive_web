@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft, RefreshCw, Shirt, Copy, ExternalLink, Power, PowerOff, AlertTriangle, ChevronLeft, ChevronRight, Filter } from 'lucide-react'
 import { toast } from 'sonner'
 import { useAuth } from '@/hooks/useAuth'
+import MasterdataPanel from '@/components/admin/MasterdataPanel'
 import { createOutfit, updateOutfit, getOutfitCatalog, getOutfits, getSkinImageUrl, getClientResourcePath } from '@/services/outfitService'
 import type { Outfit, OutfitCatalog } from '@/services/outfitService'
 
@@ -27,6 +28,8 @@ export default function OutfitsPage() {
 	const PAGE_SIZE = 10
 	const [loading, setLoading] = useState(true)
 	const [saving, setSaving] = useState(false)
+	const [masterBusy, setMasterBusy] = useState(false)
+	const [reactivating, setReactivating] = useState(false)
 	const submitting = useRef(false)
 	const [error, setError] = useState('')
 	const [message, setMessage] = useState('')
@@ -65,7 +68,7 @@ export default function OutfitsPage() {
 
 	async function submit(event: FormEvent<HTMLFormElement>) {
 		event.preventDefault()
-		if (submitting.current || loading || !catalog) return
+		if (submitting.current || loading || !catalog || masterBusy || reactivating) return
 		setError(''); setMessage('')
 		if (!catalog.items.some(item => item.slot_code === slot && item.skin_name === skin) || !/^#[0-9a-fA-F]{6}$/.test(color)) {
 			setError('Chọn ID trang phục và màu hợp lệ.'); return
@@ -75,7 +78,7 @@ export default function OutfitsPage() {
 		try {
 			const created = await createOutfit({ type_id: 1, slot_code: slot, skin_name: skin, color_code: color.toUpperCase() })
 			setOutfits(rows => [...rows.filter(row => row.detail_id !== created.detail_id), created])
-			const msg = `Đã tạo Item 1:${created.detail_id} — ${created.skin_name}.`
+			const msg = `Đã lưu Item 1:${created.detail_id} — ${created.skin_name}. Phát hành master để cập nhật game server.`
 			setMessage(msg)
 			toast.success(msg)
 			setSkin('')
@@ -90,12 +93,12 @@ export default function OutfitsPage() {
 	}
 
 	async function handleDeleteConfirm() {
-		if (!deletingOutfit || deleting) return
+		if (!deletingOutfit || deleting || masterBusy || reactivating) return
 		setDeleting(true)
 		try {
 			const updated = await updateOutfit(deletingOutfit.detail_id, { is_active: false })
 			setOutfits(rows => rows.map(row => row.detail_id === updated.detail_id ? updated : row))
-			const msg = `Đã ngừng cấp mới Item 1:${deletingOutfit.detail_id}; dữ liệu người chơi được giữ nguyên.`
+			const msg = `Đã lưu yêu cầu ngừng cấp Item 1:${deletingOutfit.detail_id}. Phát hành master để server áp dụng; đồ đã sở hữu vẫn được giữ.`
 			toast.success(msg)
 			setMessage(msg)
 			setDeletingOutfit(null)
@@ -107,15 +110,17 @@ export default function OutfitsPage() {
 	}
 
 	async function handleReactivate(item: Outfit) {
+        if (reactivating || masterBusy) return
+        setReactivating(true)
 		try {
 			const updated = await updateOutfit(item.detail_id, { is_active: true })
 			setOutfits(rows => rows.map(row => row.detail_id === updated.detail_id ? updated : row))
-			const msg = `Đã cho phép cấp mới Item 1:${item.detail_id}.`
+			const msg = `Đã lưu trạng thái cho phép cấp Item 1:${item.detail_id}. Phát hành master để server áp dụng.`
 			setMessage(msg)
 			toast.success(msg)
 		} catch (error) {
 			toast.error(errorText(error))
-		}
+		} finally { setReactivating(false) }
 	}
 
 	if (!mounted || !isLoggedIn || !isAdmin) return null
@@ -155,6 +160,8 @@ export default function OutfitsPage() {
 			{error && <p role='alert' className='mb-5 rounded-xl border border-red-400/30 bg-red-400/10 p-4 text-red-200'>{error}</p>}
 			{message && <p role='status' className='mb-5 rounded-xl border border-emerald-400/30 bg-emerald-400/10 p-4 text-emerald-200'>{message}</p>}
 			
+            <MasterdataPanel disabled={saving || deleting || reactivating} onBusyChange={setMasterBusy} />
+
 			<div className='grid gap-6 lg:grid-cols-[380px_1fr] items-start'>
 				{/* Form thêm identity mới; identity đã phát hành không thể sửa hoặc xóa. */}
 				<section className='self-start rounded-2xl border border-white/10 bg-[#1b2028] p-6 shadow-xl'>
@@ -165,7 +172,7 @@ export default function OutfitsPage() {
 						</div>
 					</div>
 					<form onSubmit={submit}>
-						<fieldset disabled={loading || saving || !catalog} className='space-y-5 disabled:opacity-60'>
+						<fieldset disabled={loading || saving || !catalog || masterBusy || reactivating} className='space-y-5 disabled:opacity-60'>
 							<div>
 								<p className='text-sm font-medium'>ID Item</p>
 								<div className='mt-2 grid grid-cols-2 gap-3'>
@@ -461,14 +468,16 @@ export default function OutfitsPage() {
 											<div className='flex items-center justify-end gap-2'>
 												{item.is_active ? <button
 													type='button'
-													onClick={() => setDeletingOutfit(item)}
+													disabled={masterBusy || saving || deleting || reactivating}
+                                                    onClick={() => setDeletingOutfit(item)}
 													className='p-2 rounded-lg border border-white/10 bg-white/5 text-gray-300 hover:text-amber-300 hover:border-amber-400/40 hover:bg-amber-400/10 cursor-pointer transition-colors'
 													title='Ngừng cấp mới mẫu này'
 												>
 													<PowerOff size={15} />
 												</button> : <button
 													type='button'
-													onClick={() => void handleReactivate(item)}
+													disabled={masterBusy || saving || deleting || reactivating}
+                                                    onClick={() => void handleReactivate(item)}
 													className='p-2 rounded-lg border border-white/10 bg-white/5 text-gray-300 hover:text-emerald-300 hover:border-emerald-400/40 hover:bg-emerald-400/10 cursor-pointer transition-colors'
 													title='Cho phép cấp mới mẫu này'
 												>

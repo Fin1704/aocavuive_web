@@ -7,6 +7,7 @@ import { toast } from 'sonner'
 
 import { style } from '@/constants/style'
 import { useAuth } from '@/hooks/useAuth'
+import MasterdataPanel from '@/components/admin/MasterdataPanel'
 import {
 	GameServer,
 	getAdminServers,
@@ -45,6 +46,7 @@ export default function AdminServersPage() {
 
 	const [servers, setServers] = useState<GameServer[]>([])
 	const [loading, setLoading] = useState(true)
+	const [masterBusy, setMasterBusy] = useState(false)
 
 	// Form tạo mới
 	const [form, setForm] = useState(EMPTY_FORM)
@@ -78,7 +80,7 @@ export default function AdminServersPage() {
 
 	const handleCreate = async (e: React.FormEvent) => {
 		e.preventDefault()
-		if (!form.url.trim()) return
+		if (!form.url.trim() || masterBusy) return
 		setCreating(true)
 		try {
 			await createServer({
@@ -101,6 +103,7 @@ export default function AdminServersPage() {
 	}
 
 	const startEdit = (server: GameServer) => {
+        if (masterBusy) return
 		setEditingId(server.id)
 		setEditForm({
 			name: server.name ?? '',
@@ -114,6 +117,7 @@ export default function AdminServersPage() {
 	}
 
 	const handleUpdate = async (id: string) => {
+        if (masterBusy) return
 		try {
 			await updateServer(id, {
 				name: editForm.name.trim() || undefined,
@@ -133,6 +137,7 @@ export default function AdminServersPage() {
 	}
 
 	const handleDelete = async (id: string, label: string) => {
+        if (masterBusy) return
 		if (!confirm(`Xóa server "${label}"?`)) return
 		try {
 			await deleteServer(id)
@@ -163,6 +168,8 @@ export default function AdminServersPage() {
 			</div>
 
 			{/* Form thêm mới */}
+            <MasterdataPanel knownServers={servers} disabled={loading || creating || editingId !== null} onBusyChange={setMasterBusy} />
+
 			<div className='bg-semidark rounded-2xl p-6 space-y-4'>
 				<h2 className='text-white font-semibold'>Thêm server mới</h2>
 				<form onSubmit={handleCreate} className='flex flex-wrap gap-3 items-end'>
@@ -243,7 +250,7 @@ export default function AdminServersPage() {
 					</div>
 					<button
 						type='submit'
-						disabled={creating}
+						disabled={creating || masterBusy}
 						className='h-9 px-5 rounded-lg text-white font-semibold text-sm transition-opacity hover:opacity-90 disabled:opacity-60'
 						style={{ backgroundImage: style.backgroundImage }}>
 						{creating ? 'Đang thêm...' : 'Thêm Server'}
@@ -392,12 +399,14 @@ export default function AdminServersPage() {
 											<td className='py-2'>
 												<div className='flex gap-2'>
 													<button
-														onClick={() => startEdit(server)}
+														disabled={masterBusy}
+                                                        onClick={() => startEdit(server)}
 														className='px-3 py-1 rounded-lg text-white text-xs font-semibold bg-white/10 hover:bg-white/20 transition-colors'>
 														Sửa
 													</button>
 													<button
-														onClick={() =>
+														disabled={masterBusy}
+                                                        onClick={() =>
 															handleDelete(
 																server.id,
 																server.name ?? server.url,
