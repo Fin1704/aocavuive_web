@@ -4,13 +4,19 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { toast } from 'sonner'
-import { Database, ShieldAlert } from 'lucide-react'
+import { Database, ShieldAlert, PackageOpen } from 'lucide-react'
 
 import { style } from '@/constants/style'
 import { useAuth } from '@/hooks/useAuth'
 import { runDatabaseMigration } from '@/services/migrationService'
 
 const MENU_ITEMS = [
+	{
+		href: '/admin/client-updates',
+		label: 'Cập nhật game',
+		description: 'Phát hành, khôi phục và quản lý cập nhật Windows, Android, iOS',
+		icon: <PackageOpen size={28} aria-hidden='true' />,
+	},
 	{
 		href: '/admin/outfits',
 		label: 'Quản lý trang phục',
