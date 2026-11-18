@@ -4,10 +4,11 @@ export type ClientPlatform = 'Windows' | 'Android' | 'iOS'
 export interface ClientRelease {
   id: string; title: string; created_at: string; activated_at: string
   release_hash: string; base_version: string; engine: string; mode: 'code' | 'content'
+  mandatory?: boolean; signed?: boolean; active_for_target?: boolean
   pack_count: number; file_count: number; bytes: number
 }
 export interface ClientUpdates {
-  platform: ClientPlatform; current: ClientRelease | null; history: ClientRelease[]; max_upload_bytes: number
+  platform: ClientPlatform; current: ClientRelease | null; active_targets?: Record<string, string>; history: ClientRelease[]; max_upload_bytes: number
 }
 const headers = () => ({ Authorization: `Bearer ${localStorage.getItem('access_token') || ''}` })
 const endpoint = (platform: ClientPlatform) => getApiUrl(`/admin/client-updates/${platform}`)

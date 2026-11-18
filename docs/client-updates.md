@@ -14,10 +14,7 @@
    đã sao lưu. Không cần tăng hay nhập số phiên bản cập nhật.
 5. **Xóa** chỉ có ở lịch sử. Bản đang phát hành không thể bị xóa.
 
-Mỗi hệ điều hành có đúng một bản hiện hành (hoặc chưa có bản nào). Thông tin
-Client/Godot là metadata tương thích do plugin sinh; không phải số thứ tự phát
-hành. Client khác baseline/engine sẽ không nhận bản không tương thích.
-iOS chỉ nhận các tài nguyên cho phép; script/scene qua bản cài App Store.
+Mỗi nhánh phiên bản `(OS, base_version, engine)` duy trì một bản hiện hành độc lập (hoặc chưa có bản nào), cho phép vận hành song song bản cũ khi phát hành bản mới. Windows, Android và iOS đều hỗ trợ cập nhật đầy đủ asset, scene và script theo cờ cấu hình của client.
 
 Triển khai cả web và backend Account mới trước khi dùng. Backend cần PHP ZIP,
 thư mục `writable/client-updates` ghi được, và JWT admin. Không cần migration DB.

@@ -14,7 +14,8 @@ const date = (value: string) => new Date(value).toLocaleString('vi-VN')
 function Details({ release }: { release: ClientRelease }) {
   return <><h3 className='break-words text-lg font-semibold'>{release.title}</h3>
     <p className='mt-2 text-sm text-white/65'>{bytes(release.bytes)} · {release.pack_count} gói · {release.file_count} tệp</p>
-    <p className='mt-1 text-sm text-white/65'>Client {release.base_version} · Godot {release.engine} · {release.mode === 'content' ? 'Tài nguyên' : 'Tài nguyên, scene và script'}</p>
+    <p className='mt-1 text-sm text-white/65'>Client {release.base_version} · Godot {release.engine} · {release.mode === 'content' ? 'Tài nguyên' : 'Tài nguyên, scene và script'}{release.signed ? ' · Đã ký RSA' : ''}</p>
+    {release.active_for_target && <p className='mt-1 text-xs font-medium text-emerald-300'>Đang ghim cho nhánh Client {release.base_version} ({release.engine})</p>}
     <p className='mt-1 text-sm text-white/50'>Tải lên: {date(release.created_at)}</p>
   </>
 }
@@ -81,8 +82,7 @@ export default function ClientUpdatesPage() {
       </section>
       <section className='my-6 rounded-xl border border-white/15 p-5 sm:p-6'>
         <h2 className='text-xl font-semibold'>Tải lên bản mới</h2>
-        <p className='mt-2 text-sm text-white/65'>Chọn upload.zip do plugin Godot tạo cho {platform}. Sau khi kiểm tra thành công, bản này được ghim và bản hiện hành chuyển xuống lịch sử.</p>
-        {platform === 'iOS' && <p className='mt-2 text-sm text-amber-200'>iOS chỉ nhận gói tài nguyên được cho phép. Scene và script phải cập nhật qua bản ứng dụng.</p>}
+        <p className='mt-2 text-sm text-white/65'>Chọn upload.zip do plugin Godot tạo cho {platform}. Sau khi kiểm tra thành công, bản này được ghim cho nhánh phiên bản tương ứng; Windows, Android và iOS đều hỗ trợ cập nhật đầy đủ asset, scene và script.</p>
         <form className='mt-5 space-y-4' onSubmit={event => {
           event.preventDefault()
           if (!file || busy) return
@@ -110,7 +110,7 @@ export default function ClientUpdatesPage() {
             <button type='button' disabled={busy} className={button} onClick={() => {
               if (window.confirm(`Phát hành lại “${release.title}” cho ${platform}? Bản hiện hành sẽ chuyển xuống lịch sử.`)) void perform(signal => changeClientUpdate(platform, release.id, 'activate', data.current?.id || '', signal), 'Đã ghim bản được chọn.')
             }}><RotateCcw size={16} /> Đưa lên hiện hành</button>
-            <button type='button' disabled={busy} className={`${button} text-red-300`} onClick={() => {
+            <button type='button' disabled={busy || Boolean(release.active_for_target)} title={release.active_for_target ? 'Không thể xóa bản đang phục vụ một nhánh Client khác' : undefined} className={`${button} text-red-300`} onClick={() => {
               if (window.confirm(`Xóa “${release.title}” khỏi lịch sử?`)) void perform(signal => changeClientUpdate(platform, release.id, 'delete', data.current?.id || '', signal), 'Đã xóa khỏi lịch sử.')
             }}><Trash2 size={16} /> Xóa</button>
           </div>

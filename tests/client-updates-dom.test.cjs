@@ -40,7 +40,8 @@ test('admin UI pins current, restores history once, prevents deleting current an
  await act(async()=>resolveChange({...initial,current:release('Backup'),history:[]}))
  assert.match(document.querySelector('[aria-label="Lịch sử cập nhật"]').textContent,/Chưa có bản cũ/)
  await act(async()=>findButton('iOS').click())
- assert.match(document.querySelector('main').textContent,/iOS chỉ nhận gói tài nguyên/)
+ assert.match(document.querySelector('main').textContent,/Đang phát hành · iOS/)
+ assert.doesNotMatch(document.querySelector('main').textContent,/iOS chỉ nhận gói tài nguyên/)
  await act(async()=>root.unmount())
  auth={mounted:true,isLoggedIn:true,isAdmin:false}
  const denied=createRoot(document.getElementById('root'))
